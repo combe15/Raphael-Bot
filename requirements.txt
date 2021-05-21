@@ -13,8 +13,8 @@ psycopg2
 requests
 
 ###### Requirements with Version Specifiers ######
-dataset==1.4.4                      # https://dataset.readthedocs.io/
-discord.py==1.6.0                   # https://discordpy.readthedocs.io/
+dataset==1.5.0                      # https://dataset.readthedocs.io/
+discord.py==1.7.2                   # https://discordpy.readthedocs.io/
 Pillow==8.1.0                       # https://pillow.readthedocs.io/
 pyyaml==5.4.1                       # https://pypi.org/project/PyYAML/
-sentry-sdk==0.19.5                  # https://docs.sentry.io/platforms/python/
+sentry-sdk==1.1.0                   # https://docs.sentry.io/platforms/python/

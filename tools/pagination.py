@@ -42,7 +42,8 @@ class LinePaginator(Paginator):
         suffix: str = '```',
         max_size: int = 2000,
         scale_to_size: int = 2000,
-        max_lines: typing.Optional[int] = None
+        max_lines: typing.Optional[int] = None,
+        linesep: str = '\n', # Not Implemented TODO
         ) -> None:
         """
         This function overrides the Paginator.__init__ from inside discord.ext.commands.\n
@@ -50,6 +51,7 @@ class LinePaginator(Paginator):
         """
         self.prefix = prefix
         self.suffix = suffix
+        self.linesep = linesep # Not Implemented TODO
 
         # Embeds that exceed 2048 characters will result in an HTTPException
         # (Discord API limit), so we've set a limit of 2000
@@ -189,6 +191,7 @@ class LinePaginator(Paginator):
         url: str = None,
         exception_on_empty_embed: bool = False,
         time_to_delete: int = None,
+        linesep: str = "" # Not Implemented TODO
     ) -> typing.Optional[discord.Message]:
         """
         Use a paginator and set of reactions to provide pagination over a set of lines.
@@ -231,7 +234,7 @@ class LinePaginator(Paginator):
             )
 
         paginator = cls(prefix=prefix, suffix=suffix, max_size=max_size, max_lines=max_lines,
-                        scale_to_size=scale_to_size)
+                        scale_to_size=scale_to_size, linesep=linesep)
         current_page = 0
 
         if not lines:
