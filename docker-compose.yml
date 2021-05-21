@@ -1,0 +1,38 @@
+version: '3.3'
+
+services:
+
+  db:
+    image: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+    # Listens to port 5432, but leave it UNexposed for security!!!
+    environment:
+      POSTGRES_USER: raphael
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - ${DATABASE_VIEW_PORT}:8080
+
+  raphael-bot:
+    depends_on:
+      - db
+    image: docker.pkg.github.com/superstalkerx/raphael/raphael-bot:latest
+    restart: always
+    volumes:
+      - ./config:/app/config
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      RAPHAEL_DB_HOST: db:5432
+      RAPHAEL_DB_USER: raphael # NOTE: Value has to match POSTGRES_USER
+      RAPHAEL_DB_PASSWORD: ${DATABASE_PASSWORD} # NOTE: Value has to match POSTGRES_PASSWORD
+      BOT_PREFIX: ${BOT_PREFIX}
+      BOT_TOKEN: ${BOT_TOKEN}
+      LOG_LEVEL: "INFO"
+volumes:
+    db_data: {}

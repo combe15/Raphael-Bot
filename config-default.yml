@@ -1,0 +1,214 @@
+# Default config file. To overwrite these configs, make a new file named `config.yml`
+# in the same directory as `config-default.yml`, `config.yml` will override any values set
+# in `config-default.yml` when the program runs. If not mentioned in `config.yml`,
+# `config-default.yml` will serve as the default value for the variable.
+
+# !ENV - Takes variable from enviroment variables.
+# !JOIN - Join fellow config variables together. https://bit.ly/3qakxSR
+
+# If you add a new default config variable. 
+# Be sure you add it to constants.py Dataclasses as well.
+
+bot:
+    prefix:     !ENV    "BOT_PREFIX"
+    token:      !ENV    "BOT_TOKEN"
+    id:         !ENV    "BOT_ID"
+    log_level:  !ENV    "LOG_LEVEL" # NOTSET | TRACE | DEBUG | INFO | WARN | ERROR | CRITICAL
+
+db:
+    host:       !ENV    "RAPHAEL_DB_HOST"
+    user:       !ENV    "RAPHAEL_DB_USER"
+    password:   !ENV    "RAPHAEL_DB_PASSWORD"
+
+sentry:
+    dsn_key:    !ENV    "SENTRY_DSN"
+
+subby_api:
+    address:    !ENV    "SUBBY_API_ADDRESS"
+    api_key:    !ENV    "SUBBY_API_KEY"
+
+emby:
+    address:    !ENV    "EMBY_API_ADDRESS"
+    api_key:    !ENV    "EMBY_API_KEY"
+    policy:
+        - IsAdministrator:                  False
+        - IsHidden:                         True
+        - IsHiddenRemotely:                 True
+        - IsDisabled:                       False
+        - MaxParentalRating:                NULL
+        - BlockedTags:
+            - string
+        - IsTagBlockingModeInclusive:       True
+        - EnableUserPreferenceAccess:       True
+        - AccessSchedules:
+            - DayOfWeek:    Sunday
+            - StartHour:    0
+            - EndHour:      0
+        - BlockUnratedItems:
+            - string
+        - EnableRemoteControlOfOtherUsers:  False
+        - EnableSharedDeviceControl:        True
+        - EnableRemoteAccess:               True
+        - EnableLiveTvManagement:           False
+        - EnableLiveTvAccess:               False
+        - EnableMediaPlayback:              True
+        - EnableAudioPlaybackTranscoding:   True
+        - EnableVideoPlaybackTranscoding:   False
+        - EnablePlaybackRemuxing:           True
+        - EnableContentDeletion:            False
+        - EnableContentDeletionFromFolders:
+            - string
+        - EnableContentDownloading:         True
+        - EnableSubtitleDownloading:        True
+        - EnableSubtitleManagement:         False
+        - EnableSyncTranscoding:            True
+        - EnableMediaConversion:            True
+        - EnabledDevices:
+            - string
+        - EnableAllDevices:                 True
+        - EnabledChannels:
+            - string
+        - EnableAllChannels:                True
+        - EnabledFolders:
+            - string
+        - EnableAllFolders:                 True
+        - InvalidLoginAttemptCount:         5
+        - EnablePublicSharing:              False
+        - BlockedMediaFolders:
+            - string
+        - BlockedChannels:
+            - string
+        - RemoteClientBitrateLimit:         1
+        - AuthenticationProviderId:         string
+        - ExcludedSubFolders:
+            - string
+        - SimultaneousStreamLimit:          1
+
+finnhub:
+    token:      !ENV    "FINNHUB_TOKEN"
+    url:                "https://finnhub.io"
+
+shop:
+    emoji:
+        buy_price:      3000
+        delete_price:   3000
+        rename_price:   1000
+
+style:
+    colours:
+        soft_red:     0xcd6d6d
+        soft_green:   0x68c290
+        soft_orange:  0xf9cb54
+        bright_green: 0x01d277
+
+    emojis:
+        status_online:  "<:status_online:470326272351010816>"
+        status_idle:    "<:status_idle:470326266625785866>"
+        status_dnd:     "<:status_dnd:470326272082313216>"
+        status_offline: "<:status_offline:470326266537705472>"
+
+        incident_actioned:      "<:incident_actioned:719645530128646266>"
+        incident_unactioned:    "<:incident_unactioned:719645583245180960>"
+        incident_investigating: "<:incident_investigating:719645658671480924>"
+
+        bullet:     "\u2022"
+        pencil:     "\u270F"
+        new:        "\U0001F195"
+        cross_mark: "\u274C"
+        check_mark: "\u2705"
+
+        # Paginate
+        first:      "<:First:799886954082598923>"
+        previous:   "<:Previous:799886954342252564>"
+        next:       "<:Next:799886954132144180>"
+        last:       "<:Last:799886954094657567>"
+        close:      "<:Close:799886954355228702>"
+
+        trashcan: "<:trashcan:767923828877688842>"
+        
+        # Emotes used for cups.
+        cup: "<:cup:768235312614080512>"
+        coin: ":coin:"
+        cash_out: "💸"
+        ramen: "🍜"
+
+        # Emotes for Stonks.
+        buy: "<:buy:829551335963361310>"
+        sell: "<:sell:829551356762521661>"
+
+        # Emotes for numbers.
+        number_zero: "0️⃣"
+        number_one: "1️⃣"
+        number_two: "2️⃣"
+        number_three: "3️⃣"
+        number_four: "4️⃣"
+        number_five: "5️⃣"
+        number_six: "6️⃣"
+        number_seven: "7️⃣"
+        number_eight: "8️⃣"
+        number_nine: "9️⃣"
+        number_ten: "🔟"
+
+        # Emotes used for connect4.
+        yellow_circle: "🟡"
+        red_circle: "🔴"
+        black_circle: "⚫"
+
+        # Emotes used for slot machine.
+        bar: '🍫'
+        mellon: '🍉'
+        bell: '🔔'
+        peach: '🍑'
+        honey: '🍯'
+        cherry: '🍒'
+        lemon: '🍋'
+        lever: '📍'
+        bomb: '💣'
+
+    icons:
+        crown_blurple: "https://cdn.discordapp.com/emojis/469964153289965568.png"
+        crown_green:   "https://cdn.discordapp.com/emojis/469964154719961088.png"
+        crown_red:     "https://cdn.discordapp.com/emojis/469964154879344640.png"
+
+        defcon_denied:   "https://cdn.discordapp.com/emojis/472475292078964738.png"
+        defcon_disabled: "https://cdn.discordapp.com/emojis/470326273952972810.png"
+        defcon_enabled:  "https://cdn.discordapp.com/emojis/470326274213150730.png"
+        defcon_updated:  "https://cdn.discordapp.com/emojis/472472638342561793.png"
+
+        filtering: "https://cdn.discordapp.com/emojis/472472638594482195.png"
+
+        hash_blurple: "https://cdn.discordapp.com/emojis/469950142942806017.png"
+        hash_green:   "https://cdn.discordapp.com/emojis/469950144918585344.png"
+        hash_red:     "https://cdn.discordapp.com/emojis/469950145413251072.png"
+
+        message_bulk_delete: "https://cdn.discordapp.com/emojis/469952898994929668.png"
+        message_delete:      "https://cdn.discordapp.com/emojis/472472641320648704.png"
+        message_edit:        "https://cdn.discordapp.com/emojis/472472638976163870.png"
+
+        sign_in:  "https://cdn.discordapp.com/emojis/469952898181234698.png"
+        sign_out: "https://cdn.discordapp.com/emojis/469952898089091082.png"
+
+        user_ban:    "https://cdn.discordapp.com/emojis/469952898026045441.png"
+        user_unban:  "https://cdn.discordapp.com/emojis/469952898692808704.png"
+        user_update: "https://cdn.discordapp.com/emojis/469952898684551168.png"
+
+        user_mute:     "https://cdn.discordapp.com/emojis/472472640100106250.png"
+        user_unmute:   "https://cdn.discordapp.com/emojis/472472639206719508.png"
+        user_verified: "https://cdn.discordapp.com/emojis/470326274519334936.png"
+
+        user_warn: "https://cdn.discordapp.com/emojis/470326274238447633.png"
+
+        pencil: "https://cdn.discordapp.com/emojis/470326272401211415.png"
+
+        remind_blurple: "https://cdn.discordapp.com/emojis/477907609215827968.png"
+        remind_green:   "https://cdn.discordapp.com/emojis/477907607785570310.png"
+        remind_red:     "https://cdn.discordapp.com/emojis/477907608057937930.png"
+
+        questionmark: "https://cdn.discordapp.com/emojis/512367613339369475.png"
+
+        voice_state_blue:  "https://cdn.discordapp.com/emojis/656899769662439456.png"
+        voice_state_green: "https://cdn.discordapp.com/emojis/656899770094452754.png"
+        voice_state_red:   "https://cdn.discordapp.com/emojis/656899769905709076.png"
+
+config:
+    required_keys: ['bot.token']
