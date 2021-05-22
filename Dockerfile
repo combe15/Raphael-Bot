@@ -9,9 +9,8 @@ ENV LOG_LEVEL="INFO"
 ENV SENTRY_DSN=""
 ENV SUBBY_API_ADDRESS=""
 ENV SUBBY_API_KEY=""
-ENV EMBY_API_KEY=""
 ENV EMBY_API_ADDRESS=""
-ENV SENTRY_DSN=""
+ENV EMBY_API_KEY=""
 ENV FINNHUB_TOKEN=""
 
 # Keeps Python from generating .pyc files in the container
