@@ -232,7 +232,7 @@ class Chance(Cog):
     @commands.command(name='connect4', aliases=['4', 'connect'])
     async def connect(self, ctx: Context, bet: int = 0):
         """
-        Connect four checkers in a row, pillar, or diaginal first to win.
+        Connect four checkers in a row, pillar, or diagonal first to win.
         """
         # setting global emoji's that will be used in the program
         ONE_EMOJI = constants.Emojis.number_one

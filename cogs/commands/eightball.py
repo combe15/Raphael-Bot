@@ -23,7 +23,7 @@ class EightBall(Cog):
         Simply give it a yes or no question
         """
 
-        log.info(f'{ctx.author} has gave a qutestion to the 8ball gods: {question}.')
+        log.info(f'{ctx.author} has gave a question to the 8ball gods: {question}.')
         
         responses = ["It is certain.",
                      "It is decidedly so.",

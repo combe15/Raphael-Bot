@@ -94,7 +94,7 @@ class Stonks(Cog):
         message = []
         
         async with ctx.channel.typing():
-            for stonk in stonks:
+            for stonk in stonks[:5]:
                 stonk_dict[stonk.upper()] = self.stock_price(stonk.upper())
         
         embed = embeds.make_embed(ctx=ctx, title=f"STONKS:",
@@ -131,7 +131,7 @@ class Stonks(Cog):
         stonk = (stonk.upper(), self.stock_price(stonk.upper()))
 
         if 'error' in stonk[1]:
-            embeds.error_embed(ctx, "An error occured, please try again:\n" + stonk[1]['error'])
+            embeds.error_embed(ctx, "An error occurred, please try again:\n" + stonk[1]['error'])
             return
 
         if stonk[1]['t'] == 0:
@@ -164,7 +164,7 @@ class Stonks(Cog):
                     timestamp=ctx.message.created_at
                 ))
             except Exception as e:
-                await embeds.error_message("An error occured: notify <@396570271265325058>", ctx)
+                await embeds.error_message("An error occurred: notify <@396570271265325058>", ctx)
                 log.error("something happend", exc_info = e)
                 db.rollback()
                 return
@@ -183,14 +183,14 @@ class Stonks(Cog):
     @commands.max_concurrency(number=1, per=BucketType.user, wait=True)
     @commands.command(name='stock_sell', aliases=['stonk_sell', 'stonks_sell', 'stocks_sell'])
     async def sell_stock(self, ctx: Context, stonk: str, number_of_stonks: int):
-        """ Deinvest in the stock market """
+        """ Disinvest in the stock market """
         def check(m):
             return m.content.lower() == 'confirm' and m.channel == ctx.channel and m.author == ctx.author
 
         stonk = (stonk.upper(), self.stock_price(stonk.upper()))
 
         if 'error' in stonk[1]:
-            embeds.error_embed(ctx, "An error occured, please try again:\n" + stonk[1]['error'])
+            embeds.error_embed(ctx, "An error occurred, please try again:\n" + stonk[1]['error'])
             return
 
         if stonk[1]['t'] == 0:
@@ -228,7 +228,7 @@ class Stonks(Cog):
                 try:
                     msg = await self.bot.wait_for('message',timeout=30.0, check=check)
                 except asyncio.TimeoutError:
-                    await rep.reply("Sell timed out, cancled", delete_after=15)
+                    await rep.reply("Sell timed out, canceled", delete_after=15)
                     return
 
                 subby_api.add_balance(member_id=ctx.author.id, amount=sell_price-fee, edit_house=True)
@@ -242,7 +242,7 @@ class Stonks(Cog):
                     timestamp=ctx.message.created_at
                 ))
             except Exception as e:
-                await embeds.error_message("An error occured: notify <@396570271265325058>", ctx)
+                await embeds.error_message("An error occurred: notify <@396570271265325058>", ctx)
                 log.error("something happend", exc_info = e)
                 db.rollback()
                 return
@@ -289,12 +289,12 @@ class Stonks(Cog):
                     asyncio.sleep(10)
                 stonk = x['stonk']
                 stonk_amount = x['totalstonks']
-                # dont need to lookup any stocks that user doesnt have any of.
+                # don't need to lookup any stocks that user doesn't have any of.
                 if stonk_amount <= 0:
                     continue
                 result = self.stock_price(x['stonk'])
                 if 'error' in result:
-                    embeds.error_embed(ctx, "An error occured, please try again:\n" + result['error'])
+                    embeds.error_embed(ctx, "An error occurred, please try again:\n" + result['error'])
                     return
                 price = round(stonk_amount * result['c'] * 100, 6)
                 investment += price 
@@ -398,7 +398,7 @@ class Stonks(Cog):
                     asyncio.sleep(10)
                 stonk = x['stonk']
                 stonk_amount = x['totalstonks']
-                # dont need to lookup any stocks that user doesnt have any of.
+                # don't need to lookup any stocks that user doesn't have any of.
                 if stonk_amount <= 0:
                     continue
                 price = round(self.stock_price(x['stonk'])['c'] * 100, 6)

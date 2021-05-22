@@ -266,7 +266,7 @@ class ErrorTests(Cog):
         raise commands.BotMissingAnyRole()
 
     @test_error.command(name="NSFWChannelRequired")
-    async def nsfw_hannel_required(self, ctx: Context):
+    async def nsfw_handel_required(self, ctx: Context):
         """ Exception raised when a channel does not have the required NSFW setting. """
         # https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.NSFWChannelRequired
         raise commands.NSFWChannelRequired()

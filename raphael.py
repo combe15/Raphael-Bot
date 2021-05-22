@@ -36,13 +36,13 @@ async def on_ready():
 async def on_message(message: discord.Message):
     """ This event listener has been moved to message_updates.py
 
-    Unfortuneatley, this listener has to remain and do nothing, otherwise,
+    Unfortunately, this listener has to remain and do nothing, otherwise,
     any message will be ran twice and cause issues. Lame, i know
     """
     # Do nothing
 
 if __name__ == '__main__':
-    # Attempt to create the db, tables, and columns for Chiya.
+    # Attempt to create the db, tables, and columns for Raphael.
     database.setup_db()
 
     # Recursively loads in all the cogs in the folder named cogs.

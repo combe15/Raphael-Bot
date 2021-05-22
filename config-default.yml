@@ -3,7 +3,7 @@
 # in `config-default.yml` when the program runs. If not mentioned in `config.yml`,
 # `config-default.yml` will serve as the default value for the variable.
 
-# !ENV - Takes variable from enviroment variables.
+# !ENV - Takes variable from environment variables.
 # !JOIN - Join fellow config variables together. https://bit.ly/3qakxSR
 
 # If you add a new default config variable. 

@@ -90,7 +90,7 @@ class MemberUpdates(commands.Cog):
         For more information:
             https://discordpy.readthedocs.io/en/latest/api.html#discord.on_member_update
         """
-        # Below is a psuedo on_nitro_boost event.
+        # Below is a pseudo on_nitro_boost event.
         if before.premium_since is None and after.premium_since is not None:
             return
 

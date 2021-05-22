@@ -65,7 +65,7 @@ def add_balance(member_id: discord.Member.id, amount, edit_house:bool=False) -> 
 
     Args:
         member_id (discord.Member.id): Discord member's ID.
-        amount ([type]): Ammout to add member's account.
+        amount ([type]): Amount to add member's account.
         edit_house (bool, optional): Transfer funds to the bot. Defaults to False.
 
     Raises:
@@ -119,7 +119,7 @@ def subtract_balance(member_id: discord.Member.id, amount: int, edit_house:bool=
 
     Args:
         member_id (discord.Member.id): Discord member's ID.
-        amount (int): Ammout to subtract member's account.
+        amount (int): Amount to subtract member's account.
         edit_house (bool, optional): Transfer funds to the bot. Defaults to False.
 
     Raises:
@@ -174,7 +174,7 @@ def set_balance(member_id: discord.Member.id, amount: int) -> int:
 
     Args:
         member_id (discord.Member.id): Discord member's ID.
-        amount (int): Ammout to set member's account.
+        amount (int): Amount to set member's account.
 
     Raises:
         TypeError: `member_id` must be an int.
@@ -225,7 +225,7 @@ def record_ledger(member_sender_id: discord.Member.id, member_receiver_id: disco
     Args:
         member_sender_id (discord.Member.id): Discord member's ID of sender.
         member_receiver_id (discord.Member.id): Discord member's ID of receiver.
-        amount (int): Ammount transfered.
+        amount (int): Amount transferred.
         reason (str, optional): [description]. Defaults to "None".
 
     Raises:

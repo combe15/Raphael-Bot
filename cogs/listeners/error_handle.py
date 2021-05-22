@@ -1,5 +1,5 @@
 """
-This module has a lot of issues, it doesn't characterise a lot of errors correctly. 
+This module has a lot of issues, it doesn't characterize a lot of errors correctly. 
 I'm not sure if it is because of my faulty coding or because discord.py has a few non-uniform errors.
 
 If There was a test suite that could test all the errors, that would be nice, but I'm not aware of any.
@@ -369,7 +369,7 @@ class error_handle(Cog):
             )
 
 
-    # Ceatch all for unknown errors
+    # Catch all for unknown errors
     @staticmethod
     async def handle_unexpected_error(ctx: Context, error: errors.CommandError) -> None:
         """ Send a generic error message and log the exception as an error.

@@ -17,7 +17,7 @@ def get_db():
 
 
 def setup_db():
-    """ Sets up the tables needed for Chiya. """
+    """ Sets up the tables needed for Raphael. """
     log.info("Setting up database and tables.")
     with dataset.connect(get_db()) as db:
         # TODO: Add check to see if tables exists before creating.

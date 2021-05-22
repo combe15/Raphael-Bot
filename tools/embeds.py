@@ -47,7 +47,7 @@ def make_embed(title: str = None, description: str = None, ctx: Context = None, 
 
     # Adding Timestamp for ease of tracking when embeds are posted.
     if ctx:
-        # This try is because there is a bug in discordpy that the created_at value is in the message object but the message object does not exist in regular messages.
+        # This try is because there is a bug in discord.py that the created_at value is in the message object but the message object does not exist in regular messages.
         try: 
             embed.timestamp = ctx.message.created_at
         except AttributeError:

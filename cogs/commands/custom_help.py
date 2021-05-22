@@ -108,7 +108,7 @@ class CustomHelpCommand(HelpCommand):
             command_details += f"**Can also use:** {aliases}\n\n"
 
         # Check if the user is allowed to run the command, such as is_owner() or disabled.
-        # If can_run() is false, then it raises an excepion, in this case, we do not want that.
+        # If can_run() is false, then it raises an exception, in this case, we do not want that.
         try:
             await command.can_run(self.context)
         except CommandError:
@@ -305,7 +305,7 @@ class Help(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-        # Overiding default help command with new custom command.
+        # Overriding default help command with new custom command.
         self.old_help_command = bot.help_command
         bot.help_command = CustomHelpCommand()
         bot.help_command.add_check(self.check)
