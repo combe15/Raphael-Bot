@@ -23,6 +23,7 @@ Make a `.env` file with the text below as the template. Then insert the correspo
 
 ``` ENV
 DATABASE_PASSWORD=
+DATABASE_VIEW_PORT=
 BOT_PREFIX=
 BOT_TOKEN=
 BOT_ID=
