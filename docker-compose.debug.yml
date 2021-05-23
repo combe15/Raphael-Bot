@@ -7,37 +7,19 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: always
-    ports: 
-      - 5432:5432
+    ports:
+      - 5432:5432 # For debugging only
     environment:
       POSTGRES_USER: raphael
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_PASSWORD: raphael-password # For debugging only, change in production!!!
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
-
-  raphael-bot:
-    depends_on:
-      - db
-    build: .
     environment:
-      PYTHONDONTWRITEBYTECODE: 1
-      PYTHONUNBUFFERED: 1
-      RAPHAEL_DB_HOST: db:5432
-      RAPHAEL_DB_USER: raphael # NOTE: Value has to match POSTGRES_USER
-      RAPHAEL_DB_PASSWORD: ${DATABASE_PASSWORD} # NOTE: Value has to match POSTGRES_PASSWORD
-      BOT_PREFIX: ${BOT_PREFIX}
-      BOT_TOKEN: ${BOT_TOKEN}
-      BOT_ID: ${BOT_ID}
-      LOG_LEVEL: "DEBUG"
-      SENTRY_DSN: ${SENTRY_DSN}
-      SUBBY_API_ADDRESS: ${SUBBY_API_ADDRESS}
-      SUBBY_API_KEY: ${SUBBY_API_KEY}
-      EMBY_API_ADDRESS: ${EMBY_API_ADDRESS}
-      EMBY_API_KEY: ${EMBY_API_KEY}
-      FINNHUB_TOKEN: ${FINNHUB_TOKEN}
+      ADMINER_DESIGN: dracula
+
 volumes:
-    db_data: {}
+  db_data: {}
