@@ -15,7 +15,7 @@ This project currently uses Python 3.8
 
 ### Docker Compose
 
-> Perquisite: Have Docker-Compose already installed on the host machine.
+> Prerequisite: Have Docker-Compose already installed on the host machine.
 
 **STEP 1** 
 Download [`docker-compose.yml`](https://github.com/SuperstalkerX/Raphael-Bot/blob/main/docker-compose.yml)
