@@ -14,6 +14,8 @@ from tools import embeds, database, record, subby_api
 import constants
 from tools.pagination import LinePaginator
 
+import functools
+
 log = logging.getLogger(__name__)
 
 # TODO implement logging
@@ -77,6 +79,32 @@ class Stonks(Cog):
             return r.json()  # making sure i don't go over the api limit of 60 requests a minute with limit burst of 30 in one second
         except Exception as e:
             log.error(e)
+     
+    @functools.cache
+    def get_symbols(self, mic):
+        # download a all the symbols from a particular exchange identified by it's mic
+        # https://en.wikipedia.org/wiki/Market_Identifier_Code
+        r = requests.get(f'https://finnhub.io/api/v1/stock/symbol?exchange=US&mic={mic}&token={FINNHUB_TOKEN}')
+        
+        # we only want the actual symbol and nothing else from the data
+        return [x['symbol'] for x in r.json()]  
+    
+    def can_trade(self, symbol:str) -> bool:
+        # we want to know if this is a stock or something else like crypto
+        stock_type = self.stock_query(symbol)[0]['type']
+
+        if symbol_lookup(symbol)['type'] == "Common Stock":
+            symbol_set_1 = self.get_symbols("XNYS")  # NYSE
+            symbol_set_2 = self.get_symbols("XNAS")  # All NASDAQ Exchanges
+            symbol_set_3 = self.get_symbols("XASE")  # AMEX
+
+            all_symbols = symbol_set_1 + symbol_set_2 + symbol_set_3
+            
+            # check to see if our symbol is in the list of symbols we pulled from the three exchanges
+            return symbol in all_symbols
+        
+        # return true if not a stock
+        return True
 
     @commands.before_invoke(record.record_usage)
     @commands.cooldown(rate=20, per=60, type=BucketType.default)
@@ -128,6 +156,10 @@ class Stonks(Cog):
     async def buy_stock(self, ctx: Context, stonk: str, number_of_stonks: int):
         """ Invest in the stock market """
 
+        if not self.can_trade(stonk.upper):
+            await embeds.warning_message(ctx, "This stock is not listed on a tradeable exchange.")
+            return
+        
         stonk = (stonk.upper(), self.stock_price(stonk.upper()))
 
         if 'error' in stonk[1]:
