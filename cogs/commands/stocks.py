@@ -408,7 +408,7 @@ class Stonks(Cog):
 
     @commands.before_invoke(record.record_usage)
     @commands.is_owner()
-    @commands.max_concurrency(number=1, per=BucketType.user, wait=True)
+    @commands.max_concurrency(number=1, per=BucketType.user, wait=False)
     @commands.command(name='market')
     async def market(self, ctx: Context):
         """ List All stocks in market with their value. """
@@ -429,14 +429,19 @@ class Stonks(Cog):
         async with ctx.channel.typing():
             for count, x in enumerate(result):
                 # have to sleep due to rate limits on API
-                if 1+count % 10 == 0:
-                    asyncio.sleep(10)
+                await asyncio.sleep(1)
                 stonk = x['stonk']
                 stonk_amount = x['totalstonks']
                 # don't need to lookup any stocks that user doesn't have any of.
                 if stonk_amount <= 0:
                     continue
-                price = round(self.stock_price(x['stonk'])['c'] * 100, 6)
+                while True:
+                    try:
+                        value = self.stock_price(x['stonk'])['c']
+                        break
+                    except:
+                        continue
+                price = round(value * 100, 6)
                 investment += price * stonk_amount
                 port.append(f"[{stonk}](https://finance.yahoo.com/quote/{stonk})"
                     f" Shares:**` {stonk_amount:>7,} `** Value:**` {stonk_amount*price:>10,.0f}`**")
