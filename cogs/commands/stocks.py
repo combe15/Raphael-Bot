@@ -107,11 +107,11 @@ class Stonks(Cog):
                 continue
             if ticker['t'] != 0:
                 message = (f"```py\n"
-                    f"Current price: {round(ticker['c'] * 100, 6):,}\n"
-                    f"High price: {round(ticker['h'] * 100, 6):,}\n"
-                    f"Low price: {round(ticker['l'] * 100, 6):,}\n"
-                    f"Open price: {round(ticker['o'] * 100, 6):,}\n"
-                    f"Previous close price: {round(ticker['pc'] * 100, 6):,}```"
+                    f"Price: {round(ticker['c'] * 100, 6):,}\n"
+                    f"High:  {round((ticker['h']  - ticker['c']) * 100, 2):+,}\n"
+                    f"Low:   {round((ticker['l']  - ticker['c']) * 100, 2):+,}\n"
+                    f"Open:  {round((ticker['o']  - ticker['c']) * 100, 2):+,}\n"
+                    f"Close: {round((ticker['pc'] - ticker['c']) * 100, 2):+,}```"
                     f"https://finance.yahoo.com/quote/{stonk}")
             else:
                 message = "No results, check your stock name"
