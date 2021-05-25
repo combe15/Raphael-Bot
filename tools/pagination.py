@@ -191,7 +191,7 @@ class LinePaginator(Paginator):
         url: str = None,
         exception_on_empty_embed: bool = False,
         time_to_delete: int = None,
-        linesep: str = "" # Not Implemented TODO
+        linesep: str = "\n" # Not Implemented TODO
     ) -> typing.Optional[discord.Message]:
         """
         Use a paginator and set of reactions to provide pagination over a set of lines.
