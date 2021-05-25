@@ -49,7 +49,7 @@ class Share():
         except Exception as e:
             log.error(e)
 
-    def stock_query(self) -> list:
+    def stock_query1(self) -> list:
         """ Call API for Searching a stock """
         query = requests.utils.quote(self.name)
         try:
@@ -68,32 +68,33 @@ class Stonks(Cog):
         stock = requests.utils.quote(stock)
         try:
             r = requests.get(f'{FINNHUB_URL}/api/v1/quote?symbol={stock}&token={FINNHUB_TOKEN}')
-            return r.json()  # making sure i don't go over the api limit of 60 requests a minute with limit burst of 30 in one second
+            return r.json()
         except Exception as e:
             log.error(e)
 
+    @functools.lru_cache(maxsize=None)
     def stock_query(self, query:str) -> list:
         query = requests.utils.quote(query)
         try:
             r = requests.get(f'{FINNHUB_URL}/api/v1/search?q={query}&token={FINNHUB_TOKEN}')
-            return r.json()  # making sure i don't go over the api limit of 60 requests a minute with limit burst of 30 in one second
+            return r.json()
         except Exception as e:
             log.error(e)
-     
-    @functools.cache
-    def get_symbols(self, mic):
+
+    @functools.lru_cache(maxsize=None)
+    def get_symbols(self, mic:str) -> list:
         # download a all the symbols from a particular exchange identified by it's mic
         # https://en.wikipedia.org/wiki/Market_Identifier_Code
         r = requests.get(f'https://finnhub.io/api/v1/stock/symbol?exchange=US&mic={mic}&token={FINNHUB_TOKEN}')
         
         # we only want the actual symbol and nothing else from the data
-        return [x['symbol'] for x in r.json()]  
+        return [x['symbol'] for x in r.json()]
     
     def can_trade(self, symbol:str) -> bool:
         # we want to know if this is a stock or something else like crypto
-        stock_type = self.stock_query(symbol)[0]['type']
+        stock_type = self.stock_query(symbol)['result']
 
-        if symbol_lookup(symbol)['type'] == "Common Stock":
+        if stock_type[0]['type'] == "Common Stock":
             symbol_set_1 = self.get_symbols("XNYS")  # NYSE
             symbol_set_2 = self.get_symbols("XNAS")  # All NASDAQ Exchanges
             symbol_set_3 = self.get_symbols("XASE")  # AMEX
@@ -133,6 +134,8 @@ class Stonks(Cog):
             if 'error' in ticker:
                 embed.add_field(name=stonk, value=ticker['error'], inline=False)
                 continue
+            if not self.can_trade(stonk.upper()):
+                stonk += " - Not Tradeable"
             if ticker['t'] != 0:
                 message = (f"```py\n"
                     f"Current price: {round(ticker['c'] * 100, 6):,}\n"
@@ -156,7 +159,7 @@ class Stonks(Cog):
     async def buy_stock(self, ctx: Context, stonk: str, number_of_stonks: int):
         """ Invest in the stock market """
 
-        if not self.can_trade(stonk.upper):
+        if not self.can_trade(stonk.upper()):
             await embeds.warning_message(ctx, "This stock is not listed on a tradeable exchange.")
             return
         
