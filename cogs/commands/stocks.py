@@ -449,6 +449,37 @@ class Stonks(Cog):
         embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
         await LinePaginator.paginate(port, ctx, embed, max_size=2000, restrict_to_user=ctx.author)
 
+    @commands.before_invoke(record.record_usage)
+    @commands.max_concurrency(number=1, per=BucketType.user, wait=False)
+    @commands.command(name='Transaction', aliases=['t'])
+    async def transaction(self, ctx: Context):
+        """ List latest transactions in stock market. """
+
+        embed = embeds.make_embed(ctx=ctx, title="Transactions", 
+            image_url='https://compote.slate.com/images/926e5009-c10a-48fe-b90e-fa0760f82fcd.png?width=1200&rect=680x453&offset=0x30')
+
+        with dataset.connect(database.get_db(), engine_kwargs={'pool_recycle': 300}) as db:
+            # Find all stock from user and combine like stock purchases.
+            statement = statement = f"""
+                SELECT author_id, stonk, amount, investment_cost 
+                FROM stonks 
+                ORDER BY "timestamp" DESC 
+                LIMIT 250"""
+            result = db.query(statement)
+
+        port = []
+        investment = 0
+        async with ctx.channel.typing():
+            for transaction in result:
+                if transaction['amount'] > 0:
+                    icon = constants.Emojis.buy
+                else:
+                    icon = constants.Emojis.sell
+
+                port.append(f"{icon} S:**` {abs(transaction['amount']):>7,} `** V:**` {abs(transaction['investment_cost']):>10,.0f}`**"
+                    f"[{transaction['stonk']}](https://finance.yahoo.com/quote/{transaction['stonk']}) <@{transaction['author_id']}>\n")
+        await LinePaginator.paginate(port, ctx, embed, max_size=2000, restrict_to_user=ctx.author, linesep="")
+
 def setup(bot: Bot) -> None:
     """ Load the Stonks cog. """
     bot.add_cog(Stonks(bot))
