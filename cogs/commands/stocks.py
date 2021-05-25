@@ -339,11 +339,11 @@ class Stonks(Cog):
                     icon = BUY
                 else:
                     icon = SELL
-                
-                port.append(f"{icon} [{stonk}](https://finance.yahoo.com/quote/{stonk})\n"
-                    f" Shares:**` {amount:>7,} `**  Cost:**`{cost:>10,}`** Per:**` {cost/amount:>.2f} `**")
+
+                port.append(f"{icon}[{stonk}](https://finance.yahoo.com/quote/{stonk})\n"
+                    f"Shares:**` {amount:>7,} `** Value:**`{cost:>10,}`**")
         embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
-        await LinePaginator.paginate(port, ctx, embed, max_size=2000, restrict_to_user=ctx.author)
+        await LinePaginator.paginate(port, ctx, embed, max_size=1000, restrict_to_user=ctx.author)
 
     @commands.before_invoke(record.record_usage)
     @commands.max_concurrency(number=1, per=BucketType.user, wait=True)
