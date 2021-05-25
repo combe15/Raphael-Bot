@@ -27,63 +27,6 @@ subby_api:
     address:    !ENV    "SUBBY_API_ADDRESS"
     api_key:    !ENV    "SUBBY_API_KEY"
 
-emby:
-    address:    !ENV    "EMBY_API_ADDRESS"
-    api_key:    !ENV    "EMBY_API_KEY"
-    policy:
-        - IsAdministrator:                  False
-        - IsHidden:                         True
-        - IsHiddenRemotely:                 True
-        - IsDisabled:                       False
-        - MaxParentalRating:                NULL
-        - BlockedTags:
-            - string
-        - IsTagBlockingModeInclusive:       True
-        - EnableUserPreferenceAccess:       True
-        - AccessSchedules:
-            - DayOfWeek:    Sunday
-            - StartHour:    0
-            - EndHour:      0
-        - BlockUnratedItems:
-            - string
-        - EnableRemoteControlOfOtherUsers:  False
-        - EnableSharedDeviceControl:        True
-        - EnableRemoteAccess:               True
-        - EnableLiveTvManagement:           False
-        - EnableLiveTvAccess:               False
-        - EnableMediaPlayback:              True
-        - EnableAudioPlaybackTranscoding:   True
-        - EnableVideoPlaybackTranscoding:   False
-        - EnablePlaybackRemuxing:           True
-        - EnableContentDeletion:            False
-        - EnableContentDeletionFromFolders:
-            - string
-        - EnableContentDownloading:         True
-        - EnableSubtitleDownloading:        True
-        - EnableSubtitleManagement:         False
-        - EnableSyncTranscoding:            True
-        - EnableMediaConversion:            True
-        - EnabledDevices:
-            - string
-        - EnableAllDevices:                 True
-        - EnabledChannels:
-            - string
-        - EnableAllChannels:                True
-        - EnabledFolders:
-            - string
-        - EnableAllFolders:                 True
-        - InvalidLoginAttemptCount:         5
-        - EnablePublicSharing:              False
-        - BlockedMediaFolders:
-            - string
-        - BlockedChannels:
-            - string
-        - RemoteClientBitrateLimit:         1
-        - AuthenticationProviderId:         string
-        - ExcludedSubFolders:
-            - string
-        - SimultaneousStreamLimit:          1
-
 finnhub:
     token:      !ENV    "FINNHUB_TOKEN"
     url:                "https://finnhub.io"

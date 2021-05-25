@@ -32,8 +32,6 @@ BOT_ID=
 SENTRY_DSN=
 SUBBY_API_ADDRESS=
 SUBBY_API_KEY=
-EMBY_API_ADDRESS=
-EMBY_API_KEY=
 FINNHUB_TOKEN=
 ```
 
@@ -97,9 +95,6 @@ db:
 subby_api:
   address:    "http://400.563.1.1:4545"
   api_key:    "umturvymonitoryS10w1ymynahcomp1ete"
-
-emby:
-  api_key:    "829c405b5d6c468a9c9c4f8f910d614a"
 
 finnhub:
     token:    "bu53f6n22v6sjdfq7sbe"

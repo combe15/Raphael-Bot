@@ -218,13 +218,6 @@ class Subby_api(metaclass=YAMLGetter):
     api_key: str
 
 
-class Emby(metaclass=YAMLGetter):
-    section = "emby"
-
-    address: str
-    api_key: str
-
-
 class Finnhub(metaclass=YAMLGetter):
     section = "finnhub"
 
