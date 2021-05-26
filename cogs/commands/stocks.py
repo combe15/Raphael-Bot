@@ -170,7 +170,7 @@ class Stonks(Cog):
     @commands.before_invoke(record.record_usage)
     @commands.cooldown(rate=20, per=60, type=BucketType.default)
     @commands.cooldown(rate=4, per=600, type=BucketType.user)
-    @commands.max_concurrency(number=1, per=BucketType.user, wait=True)
+    @commands.max_concurrency(number=1, per=BucketType.user, wait=False)
     @commands.command(
         name="stock_buy", aliases=["stonk_buy", "stonks_buy", "stocks_buy"]
     )
@@ -258,7 +258,7 @@ class Stonks(Cog):
     @commands.before_invoke(record.record_usage)
     @commands.cooldown(rate=20, per=60, type=BucketType.default)
     @commands.cooldown(rate=4, per=600, type=BucketType.user)
-    @commands.max_concurrency(number=1, per=BucketType.user, wait=True)
+    @commands.max_concurrency(number=1, per=BucketType.user, wait=False)
     @commands.command(
         name="stock_sell", aliases=["stonk_sell", "stonks_sell", "stocks_sell"]
     )
@@ -372,7 +372,7 @@ class Stonks(Cog):
     @commands.before_invoke(record.record_usage)
     @commands.cooldown(rate=5, per=60, type=BucketType.default)
     @commands.cooldown(rate=1, per=300, type=BucketType.user)
-    @commands.max_concurrency(number=1, per=BucketType.user, wait=True)
+    @commands.max_concurrency(number=1, per=BucketType.user, wait=False)
     @commands.command(name="portfolio", aliases=["port", "stock_list"])
     async def list_stock(self, ctx: Context, user: discord.User = None):
         """List All your stocks."""
@@ -431,7 +431,8 @@ class Stonks(Cog):
         )
 
     @commands.before_invoke(record.record_usage)
-    @commands.max_concurrency(number=1, per=BucketType.user, wait=True)
+    @commands.cooldown(rate=1, per=300, type=BucketType.user)
+    @commands.max_concurrency(number=1, per=BucketType.user, wait=False)
     @commands.command(
         name="stock_history",
         aliases=["stonk_history", "stonks_history", "stocks_history"],
@@ -485,7 +486,8 @@ class Stonks(Cog):
         )
 
     @commands.before_invoke(record.record_usage)
-    @commands.max_concurrency(number=1, per=BucketType.user, wait=True)
+    @commands.cooldown(rate=1, per=20, type=BucketType.user)
+    @commands.max_concurrency(number=1, per=BucketType.user, wait=False)
     @commands.command(
         name="stock_lookup", aliases=["stonk_lookup", "stonks_lookup", "stocks_lookup"]
     )
@@ -572,6 +574,7 @@ class Stonks(Cog):
         )
 
     @commands.before_invoke(record.record_usage)
+    @commands.cooldown(rate=1, per=300, type=BucketType.user)
     @commands.max_concurrency(number=1, per=BucketType.user, wait=False)
     @commands.command(name="Transaction", aliases=["t"])
     async def transaction(self, ctx: Context):
