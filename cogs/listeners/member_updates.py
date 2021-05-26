@@ -8,14 +8,14 @@ log = logging.getLogger(__name__)
 
 
 class MemberUpdates(commands.Cog):
-    """ Member event handler cog. """
+    """Member event handler cog."""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild: Guild, user: Union[User, Member]) -> None:
-        """ Event Listener which is called when a user gets banned from a Guild.
+        """Event Listener which is called when a user gets banned from a Guild.
 
         Args:
             guild (Guild): The guild the user got banned from.
@@ -28,27 +28,27 @@ class MemberUpdates(commands.Cog):
         For more information:
             https://discordpy.readthedocs.io/en/latest/api.html#discord.on_member_ban
         """
-        log.info(f'{user.name}-{user.id} was banned from {guild.name}')
+        log.info(f"{user.name}-{user.id} was banned from {guild.name}")
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild: Guild, user: User) -> None:
-        """ Event Listener which is called when a user gets unbanned from a Guild.
+        """Event Listener which is called when a user gets unbanned from a Guild.
 
         Args:
             guild (Guild): The guild the user got unbanned from.
             user (User): The user that got unbanned.
-        
+
         Note:
             This requires Intents.bans to be enabled.
 
         For more information:
             https://discordpy.readthedocs.io/en/latest/api.html#discord.on_member_unban
         """
-        log.info(f'{user.name}-{user.id} was unbanned from {guild.name}')
+        log.info(f"{user.name}-{user.id} was unbanned from {guild.name}")
 
     @commands.Cog.listener()
     async def on_member_join(self, member: Member) -> None:
-        """ Event Listener which is called when a Member joins a Guild.
+        """Event Listener which is called when a Member joins a Guild.
 
         Args:
             member (Member): The member who joined.
@@ -59,11 +59,11 @@ class MemberUpdates(commands.Cog):
         For more information:
             https://discordpy.readthedocs.io/en/latest/api.html#discord.on_member_join
         """
-        log.info(f'{member} has joined {member.guild.name}.')
+        log.info(f"{member} has joined {member.guild.name}.")
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: Member) -> None:
-        """ Event Listener which is called when a Member leaves a Guild.
+        """Event Listener which is called when a Member leaves a Guild.
 
         Args:
             member (Member): The member who left.
@@ -74,7 +74,7 @@ class MemberUpdates(commands.Cog):
         For more information:
             https://discordpy.readthedocs.io/en/latest/api.html#discord.on_member_remove
         """
-        log.info(f'{member} has left {member.guild.name}.')
+        log.info(f"{member} has left {member.guild.name}.")
 
     @commands.Cog.listener()
     async def on_member_update(self, before: Member, after: Member) -> None:
@@ -96,6 +96,6 @@ class MemberUpdates(commands.Cog):
 
 
 def setup(bot: commands.Bot) -> None:
-    """ Load the member_updates cog. """
+    """Load the member_updates cog."""
     bot.add_cog(MemberUpdates(bot))
     log.info("Cog loaded: member_updates")
