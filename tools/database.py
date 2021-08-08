@@ -51,5 +51,14 @@ def setup_db():
         stonks.create_column("investment_cost", db.types.float)
         stonks.create_column("timestamp", db.types.datetime)
 
+        # Create bank table and columns to store bank transactions.
+        stonks = db.create_table("bank")
+        stonks.create_column("author_id", db.types.bigint)
+        stonks.create_column("opening_balance", db.types.float)
+        stonks.create_column("transaction_amount", db.types.float)
+        stonks.create_column("reason", db.types.text, default="")
+        stonks.create_column("timestamp", db.types.datetime)
+
         db.commit()
+        db.close()
     log.info("Created tables and columns.")
