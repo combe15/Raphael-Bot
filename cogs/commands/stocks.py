@@ -204,7 +204,7 @@ class Stonks(Cog):
                 message = "No results, check your stock name"
             embed.add_field(name=stonk, value=message, inline=False)
 
-        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
+        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}%")
         await ctx.send(embed=embed)
 
     @commands.before_invoke(record.record_usage)
@@ -287,7 +287,7 @@ class Stonks(Cog):
             image_url="https://cdn.discordapp.com/attachments/653793817299910689/766603822579580938/pepedeal.png",
             color=constants.Colours.bright_green,
         )
-        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
+        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}%")
         await ctx.reply(embed=embed)
 
     @commands.before_invoke(record.record_usage)
@@ -396,7 +396,7 @@ class Stonks(Cog):
             image_url="https://cdn.discordapp.com/attachments/653793817299910689/766603822579580938/pepedeal.png",
             color=constants.Colours.bright_green,
         )
-        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
+        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}%")
         await msg.reply(embed=embed)
 
     @commands.before_invoke(record.record_usage)
@@ -455,7 +455,7 @@ class Stonks(Cog):
                     f" Shares:**` {stonk_amount:>7,} `** Value:**` {price:>10,.0f}`**"
                 )
         embed.title += f": {investment:,.0f} :coin:"
-        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
+        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}%")
         await LinePaginator.paginate(
             port, ctx, embed, max_size=2000, restrict_to_user=ctx.author
         )
@@ -510,7 +510,7 @@ class Stonks(Cog):
                     f"{icon}[{stonk}](https://finance.yahoo.com/quote/{stonk})\n"
                     f"Shares:**` {amount:>7,} `** Value:**`{cost:>10,}`**"
                 )
-        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
+        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}%")
         await LinePaginator.paginate(
             port, ctx, embed, max_size=1000, restrict_to_user=ctx.author
         )
@@ -546,7 +546,7 @@ class Stonks(Cog):
                         Symbol: `{symbol}`
                         Type: {type}"""
                 )
-        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
+        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}%")
         await LinePaginator.paginate(port, ctx, embed, restrict_to_user=ctx.author)
 
     @commands.before_invoke(record.record_usage)
@@ -598,7 +598,7 @@ class Stonks(Cog):
                     f" Shares:**` {stonk_amount:>7,} `** Value:**` {stonk_amount*price:>10,.0f}`**"
                 )
         embed.title += f": {investment:,.0f} :coin:"
-        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
+        embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}%")
         await LinePaginator.paginate(
             port, ctx, embed, max_size=2000, restrict_to_user=ctx.author
         )
