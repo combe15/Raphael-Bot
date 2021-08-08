@@ -147,8 +147,9 @@ class Stonks(Cog):
             symbol_set_1 = self.get_symbols("XNYS")  # NYSE
             symbol_set_2 = self.get_symbols("XNAS")  # All NASDAQ Exchanges
             symbol_set_3 = self.get_symbols("XASE")  # AMEX
+            symbol_set_4 = self.get_symbols("ARCX")  # NYSE Arca
 
-            all_symbols = symbol_set_1 + symbol_set_2 + symbol_set_3
+            all_symbols = symbol_set_1 + symbol_set_2 + symbol_set_3 + symbol_set_4
 
             # Check to see if our symbol is in the list of symbols we pulled from the exchanges.
             return symbol in all_symbols
