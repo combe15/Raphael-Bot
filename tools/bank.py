@@ -35,35 +35,35 @@ class Bank:
 
         return float(self.balance)
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         """Less than"""
         if isinstance(other, int) or isinstance(other, float):
             return self.balance < other
         else:
             raise TypeError
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         """Less than or equal to"""
         if isinstance(other, int) or isinstance(other, float):
             return self.balance <= other
         else:
             raise TypeError
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         """Greater than"""
         if isinstance(other, int) or isinstance(other, float):
             return self.balance > other
         else:
             raise TypeError
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         """Greater than or equal to"""
         if isinstance(other, int) or isinstance(other, float):
             return self.balance >= other
         else:
             raise TypeError
 
-    def __float__(self):
+    def __float__(self) -> bool:
         return self.balance
 
     def __balance__(self) -> float:
