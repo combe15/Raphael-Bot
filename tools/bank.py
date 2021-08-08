@@ -23,7 +23,7 @@ class Bank:
     def __str__(self) -> str:
         """<name>'s balance is $<balance>."""
 
-        return f"{self.user.name}'s balance is **$`{self.balance}`**."
+        return f"{self.user.name}'s balance is **$`{self.balance:,.2f}`**."
 
     def __format__(self, format_spec: str) -> str:
         """Returns balance's value as to the specified format."""
