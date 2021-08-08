@@ -213,13 +213,6 @@ class Sentry(metaclass=YAMLGetter):
     dsn_key: str
 
 
-class Subby_api(metaclass=YAMLGetter):
-    section = "subby_api"
-
-    address: str
-    api_key: str
-
-
 class Finnhub(metaclass=YAMLGetter):
     section = "finnhub"
 

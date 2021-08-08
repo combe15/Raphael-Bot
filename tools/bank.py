@@ -35,6 +35,37 @@ class Bank:
 
         return float(self.balance)
 
+    def __lt__(self, other):
+        """Less than"""
+        if isinstance(other, int) or isinstance(other, float):
+            return self.balance < other
+        else:
+            raise TypeError
+
+    def __le__(self, other):
+        """Less than or equal to"""
+        if isinstance(other, int) or isinstance(other, float):
+            return self.balance <= other
+        else:
+            raise TypeError
+
+    def __gt__(self, other):
+        """Greater than"""
+        if isinstance(other, int) or isinstance(other, float):
+            return self.balance > other
+        else:
+            raise TypeError
+
+    def __ge__(self, other):
+        """Greater than or equal to"""
+        if isinstance(other, int) or isinstance(other, float):
+            return self.balance >= other
+        else:
+            raise TypeError
+
+    def __float__(self):
+        return self.balance
+
     def __balance__(self) -> float:
         """Get the balance of a user."""
 
@@ -45,10 +76,9 @@ class Bank:
                 FROM bank
                 WHERE author_id = {self.user.id}
                 ORDER BY timestamp
-                LIMIT 12
+                LIMIT 1
                 """
             result = db.query(statement)
-            db.close()
 
         for row in result:
             balance = row["opening_balance"] + row["transaction_amount"]
@@ -99,7 +129,6 @@ class Bank:
                 )
             )
             db.commit()
-            db.close()
 
     def name(self) -> str:
         """Return bank owner's name."""

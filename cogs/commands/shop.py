@@ -6,7 +6,8 @@ from discord.ext.commands import Cog, Context, Bot, BucketType
 import requests
 
 import constants
-from tools import embeds, record, subby_api
+from tools import embeds, record
+from tools.bank import Bank
 
 
 log = logging.getLogger(__name__)
@@ -44,8 +45,8 @@ class Shop(Cog):
     @emote.command(
         name="buy",
         aliases=["add"],
-        brief=f"Add your own emoji to the server.\nCost: {BUY_EMOJI:,} :ramen:",
-        description=f"Use this command to add your own emoji to the server.\nCost: {BUY_EMOJI:,} :ramen:",
+        brief=f"Add your own emoji to the server.\nCost: {BUY_EMOJI:,} :coin:",
+        description=f"Use this command to add your own emoji to the server.\nCost: {BUY_EMOJI:,} :coin:",
     )
     async def buy(self, ctx: Context, emote_name: str, image_url: str) -> None:
         """Add your own emoji to the server."""
@@ -77,10 +78,10 @@ class Shop(Cog):
             return
 
         # Check if user can buy emoji
-        if (bal := subby_api.get_balance(ctx.author.id)) < BUY_EMOJI:
+        if (bal := Bank(ctx.author)) < BUY_EMOJI:
             await embeds.warning_message(
                 ctx=ctx,
-                description=f"Insufficient funds, you need {BUY_EMOJI} :ramen:\nYour balance: {bal:,}",
+                description=f"Insufficient funds, you need {BUY_EMOJI} :coin:\nYour balance: {bal:,}",
             )
             log.info(
                 f"Emote.buy: Error {ctx.author.name} didn't meet funds of {DELETE_EMOJI}, while {bal=}"
@@ -108,11 +109,7 @@ class Shop(Cog):
             log.info(f"Emote.buy: Error {ctx.author.name} HTTPException, {e.text}.")
             return
 
-        subby_api.subtract_balance(ctx.author.id, BUY_EMOJI, True)
-        subby_api.record_ledger(
-            ctx.author.id, ctx.me.id, BUY_EMOJI, f"Created emoji {emote}"
-        )
-        subby_api.record_emoji(ctx.author.id, emote.name, "purchase", BUY_EMOJI)
+        Bank(ctx.author).subtract(BUY_EMOJI, f"Created emoji {emote}")
         log.info(
             f"Emote.buy: {ctx.author.name}'s money was taken out of their account'"
         )
@@ -120,7 +117,7 @@ class Shop(Cog):
         embed = embeds.make_embed(
             ctx=ctx,
             title=f"Emoji Purchased `:{emote.name}:`",
-            description=f"{BUY_EMOJI:,} :ramen: removed from your account\n",
+            description=f"{BUY_EMOJI:,} :coin: removed from your account\n",
             image_url=emote.url,
         )
         await ctx.reply(embed=embed)
@@ -129,8 +126,8 @@ class Shop(Cog):
     @emote.command(
         name="delete",
         aliases=["remove"],
-        brief=f"remove an emoji from the server.\nCost: {DELETE_EMOJI:,} :ramen:",
-        description=f"Use this command to remove an emoji from the server.\nCost: {DELETE_EMOJI:,} :ramen:",
+        brief=f"remove an emoji from the server.\nCost: {DELETE_EMOJI:,} :coin:",
+        description=f"Use this command to remove an emoji from the server.\nCost: {DELETE_EMOJI:,} :coin:",
     )
     async def delete(self, ctx: Context, emote: discord.Emoji) -> None:
         """Remove an emoji from the server."""
@@ -141,10 +138,10 @@ class Shop(Cog):
             log.info(f"{ctx.author.name} tried to delete a emote not from the server.")
             return
 
-        if (bal := subby_api.get_balance(ctx.author.id)) < DELETE_EMOJI:
+        if (bal := Bank(ctx.author)) < DELETE_EMOJI:
             await embeds.warning_message(
                 ctx=ctx,
-                description=f"Insufficient funds, you need {DELETE_EMOJI} :ramen:\nYour balance: {bal:,}",
+                description=f"Insufficient funds, you need {DELETE_EMOJI} :coin:\nYour balance: {bal:,}",
             )
             log.info(
                 f"Emote.delete: Error {ctx.author.name} didn't meet funds of {DELETE_EMOJI}, while {bal=}"
@@ -169,11 +166,7 @@ class Shop(Cog):
             log.error(f"Emote.delete: Error {ctx.author.name} HTTPException, {e.text}.")
             return
 
-        subby_api.subtract_balance(ctx.author.id, DELETE_EMOJI, True)
-        subby_api.record_ledger(
-            ctx.author.id, ctx.me.id, DELETE_EMOJI, f"Removed emoji {emote}"
-        )
-        subby_api.record_emoji(ctx.author.id, emote.name, "removal", DELETE_EMOJI)
+        Bank(ctx.author).subtract(DELETE_EMOJI, f"Removed emoji {emote}")
         log.info(
             f"Emote.delete: {ctx.author.name}'s money was taken out of their account'"
         )
@@ -181,7 +174,7 @@ class Shop(Cog):
         embed = embeds.make_embed(
             ctx=ctx,
             title="Emoji deleted",
-            description=f"{DELETE_EMOJI:,} :ramen: removed from your account",
+            description=f"{DELETE_EMOJI:,} :coin: removed from your account",
             image_url=emote.url,
         )
         await ctx.reply(embed=embed)
@@ -190,8 +183,8 @@ class Shop(Cog):
     @emote.command(
         name="rename",
         aliases=["name"],
-        brief=f"rename an emoji from the server.\nCost: {RENAME_EMOJI:,} :ramen:",
-        description=f"Use this command to rename an emoji from the server.\nCost: {RENAME_EMOJI:,} :ramen:",
+        brief=f"rename an emoji from the server.\nCost: {RENAME_EMOJI:,} :coin:",
+        description=f"Use this command to rename an emoji from the server.\nCost: {RENAME_EMOJI:,} :coin:",
     )
     async def rename(self, ctx: Context, emote: discord.Emoji, new_name: str) -> None:
         """Rename an emoji from the server."""
@@ -202,10 +195,10 @@ class Shop(Cog):
             log.info(f"{ctx.author.name} tried to rename a emote not from the server.")
             return
 
-        if (bal := subby_api.get_balance(ctx.author.id)) < RENAME_EMOJI:
+        if (bal := Bank(ctx.author)) < RENAME_EMOJI:
             await embeds.warning_message(
                 ctx=ctx,
-                description=f"Insufficient funds, you need {RENAME_EMOJI} :ramen:\nYour balance: {bal:,}",
+                description=f"Insufficient funds, you need {RENAME_EMOJI} :coin:\nYour balance: {bal:,}",
             )
             log.info(
                 f"Emote.rename: Error {ctx.author.name} didn't meet funds of {RENAME_EMOJI}, while {bal=}"
@@ -233,10 +226,7 @@ class Shop(Cog):
             log.error(f"Emote.rename: Error {ctx.author.name} HTTPException, {e.text}.")
             return
 
-        subby_api.subtract_balance(ctx.author.id, RENAME_EMOJI, True)
-        subby_api.record_ledger(
-            ctx.author.id, ctx.me.id, RENAME_EMOJI, f"Renamed emoji {emote}"
-        )
+        Bank(ctx.author).subtract(RENAME_EMOJI, f"Renamed emoji {emote}")
         log.info(
             f"Emote.rename: {ctx.author.name}'s money was taken out of their account'"
         )
@@ -244,7 +234,7 @@ class Shop(Cog):
         embed = embeds.make_embed(
             ctx=ctx,
             title="Emoji renamed",
-            description=f"{RENAME_EMOJI:,} :ramen: removed from your account",
+            description=f"{RENAME_EMOJI:,} :coin: removed from your account",
             image_url=emote.url,
         )
         await ctx.reply(embed=embed)

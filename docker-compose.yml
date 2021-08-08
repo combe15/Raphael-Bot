@@ -37,8 +37,6 @@ services:
       BOT_ID: ${BOT_ID}
       LOG_LEVEL: "INFO"
       SENTRY_DSN: ${SENTRY_DSN}
-      SUBBY_API_ADDRESS: ${SUBBY_API_ADDRESS}
-      SUBBY_API_KEY: ${SUBBY_API_KEY}
       FINNHUB_TOKEN: ${FINNHUB_TOKEN}
 volumes:
     db_data: {}

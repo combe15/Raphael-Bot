@@ -23,10 +23,6 @@ db:
 sentry:
     dsn_key:    !ENV    "SENTRY_DSN"
 
-subby_api:
-    address:    !ENV    "SUBBY_API_ADDRESS"
-    api_key:    !ENV    "SUBBY_API_KEY"
-
 finnhub:
     token:      !ENV    "FINNHUB_TOKEN"
     url:                "https://finnhub.io"
@@ -73,7 +69,6 @@ style:
         cup: "<:cup:768235312614080512>"
         coin: ":coin:"
         cash_out: "💸"
-        ramen: "🍜"
 
         # Emotes for Stonks.
         buy: "<:buy:829551335963361310>"

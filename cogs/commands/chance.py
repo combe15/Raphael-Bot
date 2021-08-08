@@ -7,7 +7,8 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Cog, Bot, Context, BucketType
 
-from tools import embeds, record, subby_api
+from tools import embeds, record
+from tools.bank import Bank
 import constants
 
 log = logging.getLogger(__name__)
@@ -78,14 +79,14 @@ class Chance(Cog):
         """
         There are 3 cups and only one has the prize, you have to guess which one has it
         """
-        start_bet = bet
+        # start_bet = bet
         if bet < 1:
             await embeds.error_message(
                 ctx=ctx, description="Bet must be higher or equal to 1"
             )
             return
 
-        if (bal := subby_api.get_balance(ctx.author.id)) < bet:
+        if (bal := Bank(ctx.author)) < bet:
             await embeds.error_message(
                 ctx=ctx,
                 description=f"You can't bet more than you have\nYour balance: {bal}",
@@ -97,7 +98,7 @@ class Chance(Cog):
         ONE_EMOJI = constants.Emojis.number_one  # [:one:]
         TWO_EMOJI = constants.Emojis.number_two  # [:two:]
         THREE_EMOJI = constants.Emojis.number_three  # [:three:]
-        RAMEN_EMOJI = constants.Emojis.ramen  # [:ramen:]
+        CASH_EMOJI = constants.Emojis.cash_out  # [:money_with_wings:]
         CROSS_EMOJI = constants.Emojis.cross_mark  # [:x:]
 
         def check(reaction, user) -> bool:
@@ -112,7 +113,7 @@ class Chance(Cog):
                 ONE_EMOJI,
                 TWO_EMOJI,
                 THREE_EMOJI,
-                RAMEN_EMOJI,
+                CASH_EMOJI,
             ]
 
             if x := (author_check and message_check and reaction_check):
@@ -147,14 +148,14 @@ class Chance(Cog):
                 embed = embeds.make_embed(
                     ctx=ctx, title="Cups", description="**WOOOW!** YOU WON!"
                 )
-                embed.add_field(name=" ".join(elements), value=f"You won {bet} ramen!")
+                embed.add_field(name=" ".join(elements), value=f"You won {bet} coin!")
             else:
                 log.trace(f"{ctx.author=} looses it all with {choice=} {elements=}")
                 embed = embeds.make_embed(
                     ctx=ctx, title="Cups", description="Better luck next time"
                 )
                 embed.add_field(
-                    name=(" ".join(elements)), value=f"You lost {bet} ramen."
+                    name=(" ".join(elements)), value=f"You lost {bet} coin."
                 )
                 bet = 0
 
@@ -177,18 +178,11 @@ class Chance(Cog):
                     ctx=ctx,
                     color="green",
                     title="Cups",
-                    description=f"Awarded {bet} :ramen:",
+                    description=f"Awarded {bet} :coin:",
                 )
-                subby_api.add_balance(ctx.author.id, bet, True)
+                Bank(ctx.author).add(bet, "Cups game")
                 await message.edit(embed=emb)
-                if bet > start_bet:
-                    subby_api.record_ledger(ctx.author.id, ctx.me.id, bet, "Cups game")
                 return
-            else:
-                subby_api.record_ledger(
-                    ctx.author.id, ctx.me.id, start_bet * -1, "Cups game"
-                )
-                pass
 
         choices_config = [
             [COIN_EMOJI, CROSS_EMOJI, CROSS_EMOJI],
@@ -196,15 +190,13 @@ class Chance(Cog):
             [CROSS_EMOJI, CROSS_EMOJI, COIN_EMOJI],
         ]
 
-        # Calling Subby API to get ramen amount
-
-        bal = subby_api.subtract_balance(ctx.author.id, bet, True)
+        bal = float(Bank(ctx.author).subtract(bet))
 
         message = await default_embed(None, bet)
         # getting the message object for editing and reacting
 
         # first adding reactions
-        for emoji in [ONE_EMOJI, TWO_EMOJI, THREE_EMOJI, RAMEN_EMOJI]:
+        for emoji in [ONE_EMOJI, TWO_EMOJI, THREE_EMOJI, CASH_EMOJI]:
             await message.add_reaction(emoji)
 
         while True:
@@ -226,7 +218,7 @@ class Chance(Cog):
                     bet = await spin(bet, choice=3)
                     await message.remove_reaction(reaction, user)
 
-                elif str(reaction.emoji) == RAMEN_EMOJI:
+                elif str(reaction.emoji) == CASH_EMOJI:
                     await cash_out(message=message, bet=bet, bal=bal)
                     return
 
@@ -283,12 +275,12 @@ class Chance(Cog):
             f"{FIVE_EMOJI}{SIX_EMOJI}{SEVEN_EMOJI}"
         )
 
-        if bet and bet > subby_api.get_balance(ctx.author.id):
+        if bet and bet > Bank(ctx.author):
             await embeds.error_message(
-                ctx=ctx, description="You do not have enough ramen to bet that much"
+                ctx=ctx, description="You do not have enough coin to bet that much"
             )
             return
-        subby_api.subtract_balance(ctx.author.id, bet)
+        Bank(ctx.author).subtract(bet)
 
         """Need to find another player to play against. Polling the server"""
         embed = embeds.make_embed(
@@ -327,15 +319,15 @@ class Chance(Cog):
 
                 if (
                     bet == 0
-                    or bet < (bal := subby_api.get_balance(user.id))
+                    or bet < (bal := Bank(user))
                     and str(reaction.emoji) == "▶️"
                 ):
-                    subby_api.subtract_balance(user.id, bet)
+                    Bank(user).subtract(bet)
                     players = {RED_CIRCLE: ctx.author, YELLOW_CIRCLE: user}
                     await message.clear_reactions()
                     break
                 elif str(reaction.emoji) == "🛑" and ctx.author == user:
-                    subby_api.add_balance(ctx.author.id, bet)
+                    Bank(ctx.author).add(bet)
                     try:
                         await message.delete()
                     except discord.NotFound:
@@ -344,7 +336,7 @@ class Chance(Cog):
                 elif bet > bal:
                     await embeds.warning_message(
                         ctx,
-                        f"Sorry, {user.display_name}, you do not have enough ramen to join in on the bet.",
+                        f"Sorry, {user.display_name}, you do not have enough coin to join in on the bet.",
                         False,
                     )
                 else:
@@ -352,7 +344,7 @@ class Chance(Cog):
             # removes reactions if the user tries to go forward on the last page or
             # backwards on the first page
             except asyncio.TimeoutError:
-                subby_api.add_balance(ctx.author.id, bet)
+                Bank(ctx.author).add(bet)
                 try:
                     await message.clear_reactions()
                 except discord.NotFound:
@@ -464,7 +456,7 @@ class Chance(Cog):
                 colour=color,
             )
             embed.set_thumbnail(
-                url="https://image.winudf.com/v2/image1/YXMuYW5kcm9pZC5hcHBzLmNvbm5lY3Rmb3VyNl9pY29uXzE1Njk4MzEzODNfMDYz/icon.png?w=170&fakeurl=1"
+                url="https://cdn.discordapp.com/attachments/873808247038038076/873808345591611432/icon.png"
             )
             if bet:
                 embed.set_footer(text=f"bet total: {bet*2:,}")
@@ -484,11 +476,8 @@ class Chance(Cog):
                         value=f"{bet:,} awarded to {winner.mention}\n"
                         f"{loser.mention} walks away in shame and with their pockets a little lighter",
                     )
-                    subby_api.add_balance(winner.id, bet * 2)
-                    # the second player took forever to figure out
-                    subby_api.record_ledger(
-                        loser.id, winner.id, bet, "Connect Four Game"
-                    )
+                    Bank(winner).add(bet * 2, "Connect Four Game")
+
             elif (sum(len(row) for row in board)) == 42:
                 # If this is true then the game is a tie.
                 first = players.pop(turn)
@@ -504,8 +493,8 @@ class Chance(Cog):
                         value=f"bet has been refunded to {first.mention} and {second.mention}\n"
                         f"Good game",
                     )
-                    subby_api.add_balance(first.id, bet)
-                    subby_api.add_balance(second.id, bet)
+                    Bank(first).add(bet)
+                    Bank(second).add(bet)
 
             if turn == RED_CIRCLE and not win and players != {}:
                 turn = YELLOW_CIRCLE
@@ -663,8 +652,8 @@ class Chance(Cog):
                         f"Bet has been refunded for players {players[RED_CIRCLE].mention} "
                         f"and {players[YELLOW_CIRCLE].mention}",
                     )
-                    subby_api.add_balance(players[RED_CIRCLE].id, bet)
-                    subby_api.add_balance(players[YELLOW_CIRCLE].id, bet)
+                    Bank(players[RED_CIRCLE]).add(bet)
+                    Bank(players[YELLOW_CIRCLE]).add(bet)
                     log.warning("Connect4, message to play was deleted unexpectedly")
                 break
 
@@ -690,14 +679,14 @@ class Chance(Cog):
             )
             return
 
-        if (bal := subby_api.get_balance(ctx.author.id)) < credit:
+        if (bal := Bank(ctx.author)) < credit:
             await embeds.error_message(
                 ctx=ctx,
-                description=f"You do not have enough ramen to bet that much\nYour balance: {bal}",
+                description=f"You do not have enough coin to bet that much\nYour balance: {bal}",
             )
             return
 
-        subby_api.subtract_balance(ctx.author.id, credit, True)
+        Bank(ctx.author).subtract(credit)
 
         start_credit = credit
 
@@ -715,7 +704,7 @@ class Chance(Cog):
         ONE = constants.Emojis.number_one
         FIVE = constants.Emojis.number_five
         TEN = constants.Emojis.number_ten
-        RAMEN = constants.Emojis.ramen
+        COIN = constants.Emojis.coin
 
         reel1 = {
             SEVEN: 1,
@@ -848,7 +837,7 @@ class Chance(Cog):
                         description=(
                             f"{'  '.join(elements)}\nYou won {score:,} credits!"
                         ),
-                        mage_url="https://i.imgur.com/SjYv07F.png",
+                        image_url="https://i.imgur.com/SjYv07F.png",
                     )
                     log.debug(f"{ctx.author.mention=}, won {score=} with {elements=}")
 
@@ -862,9 +851,9 @@ class Chance(Cog):
                     text="📍: Spin • 💸: Cash Out\n" "1️⃣, 5️⃣, 🔟: bet amount"
                 )
                 embed.add_field(
-                    name="Credits", value=f"{credit:,} {RAMEN}", inline=True
+                    name="Credits", value=f"{credit:,} {COIN}", inline=True
                 )
-                embed.add_field(name="Bet", value=f"{bet:,} {RAMEN}", inline=True)
+                embed.add_field(name="Bet", value=f"{bet:,} {COIN}", inline=True)
                 await message.edit(embed=embed)
                 time.sleep(0.5)  # sleep because of rate limit
 
@@ -880,8 +869,8 @@ class Chance(Cog):
             )
             log.trace(f"{ctx.author=}, changed bet: {bet=}")
             embed.set_footer(text="📍: Spin • 💸: Cash Out\n1️⃣, 5️⃣, 🔟: bet amount")
-            embed.add_field(name="Credits", value=f"{credit:,} {RAMEN}", inline=True)
-            embed.add_field(name="Bet", value=f"{bet:,} {RAMEN}", inline=True)
+            embed.add_field(name="Credits", value=f"{credit:,} {COIN}", inline=True)
+            embed.add_field(name="Bet", value=f"{bet:,} {COIN}", inline=True)
 
             if send:
                 return await ctx.reply(embed=embed)
@@ -895,15 +884,10 @@ class Chance(Cog):
             embed = embeds.make_embed(
                 ctx=ctx,
                 title="Cashing Out",
-                description=f"**Credits**: \t**``{credit:,} {RAMEN}``**\n"
-                f"**Net**: \t**``{credit-start_credit:,}{RAMEN}``**\n"
-                f"**Bank**: \t**``{subby_api.add_balance(ctx.author.id, credit, True):,} {RAMEN}``**",
+                description=f"**Credits**: \t**``{credit:,} {COIN}``**\n"
+                f"**Net**: \t**``{credit-start_credit:,}{COIN}``**\n"
+                f"**Bank**: \t**``{Bank(ctx.author).add(credit, 'Slot Machine'):,} {COIN}``**",
                 image_url="https://i.imgur.com/SjYv07F.png",
-            )
-
-            log.trace("slot_machine, cash_out: issueing ledger")
-            subby_api.record_ledger(
-                ctx.me.id, ctx.author.id, credit - start_credit, "Slot Machine"
             )
 
             log.trace("slot_machine, cash_out: sending message")
@@ -948,8 +932,8 @@ class Chance(Cog):
                     break
 
                 elif str(reaction.emoji) == BOMB:  # 💣
-                    bal_left = subby_api.get_balance(ctx.author.id)
-                    subby_api.subtract_balance(ctx.author.id, bal_left, True)
+                    bal_left = float(Bank(ctx.author))
+                    Bank(ctx.author).subtract(bal_left)
                     credit += bal_left
                     bet = credit
 
@@ -970,7 +954,7 @@ class Chance(Cog):
                     ctx=ctx,
                     description=f"An error occurred, balance refunded\n {exception=}",
                 )
-                subby_api.add_balance(ctx.author.id, credit, True)
+                Bank(ctx.author).add(credit)
 
             # ending the loop if user doesn't react after x seconds
 

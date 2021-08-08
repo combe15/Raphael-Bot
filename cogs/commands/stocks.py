@@ -9,7 +9,8 @@ from discord.ext.commands import Cog, Bot, Context, BucketType
 import requests
 import dataset
 
-from tools import embeds, database, record, subby_api
+from tools import embeds, database, record
+from tools.bank import Bank
 import constants
 from tools.pagination import LinePaginator
 
@@ -24,7 +25,7 @@ BROKERAGE_FEE_PERCENTAGE = 0.04
 
 
 class Share:
-    """Shares"""
+    """This class is currently not in use. A future update will move towards object-oriented. Here be dragons."""
 
     def __init__(self, name: str):
         self.name = name.upper()
@@ -99,21 +100,60 @@ class Stonks(Cog):
         # we only want the actual symbol and nothing else from the data
         return [x["symbol"] for x in r.json()]
 
-    def can_trade(self, symbol: str) -> bool:
-        # we want to know if this is a stock or something else like crypto
-        stock_type = self.stock_query(symbol)["result"]
+    @functools.lru_cache(maxsize=None)
+    def get_crypto_symbols(self, exchange: str) -> list:
+        # Download a all the symbols from a particular crypto exchange.
+        r = requests.get(
+            f"https://finnhub.io/api/v1/crypto/symbol?exchange={exchange}&token={FINNHUB_TOKEN}"
+        )
 
-        if len(stock_type) > 0 and stock_type[0]["type"] == "Common Stock":
+        # we only want the actual symbol and nothing else from the data
+        return [x["symbol"] for x in r.json()]
+
+    def can_trade(self, symbol: str) -> bool:
+        # We want to know if this is a stock or something else like crypto.
+        stock_type = self.stock_query(symbol)["result"]
+        stock = list(filter(lambda x: x["symbol"] == symbol, stock_type))
+
+        if not stock:
+            all_symbols = []
+            for exchange in [
+                "KRAKEN",
+                "ZB",
+                "BITMEX",
+                "KUCOIN",
+                "POLONIEX",
+                "HITBTC",
+                "OKEX",
+                "BITFINEX",
+                "GEMINI",
+                "BITTREX",
+                "BINANCE",
+                "COINBASE",
+                "HUOBI",
+                "FXPIG",
+            ]:
+                all_symbols.append(
+                    [
+                        item.partition(":")[2]
+                        for item in self.get_crypto_symbols(exchange.lower())
+                    ]
+                )
+
+            # Check to see if our crypto is in the list of symbols we pulled from the exchanges.
+            return symbol in all_symbols
+
+        if stock[0]["type"] == "Common Stock":
             symbol_set_1 = self.get_symbols("XNYS")  # NYSE
             symbol_set_2 = self.get_symbols("XNAS")  # All NASDAQ Exchanges
             symbol_set_3 = self.get_symbols("XASE")  # AMEX
 
             all_symbols = symbol_set_1 + symbol_set_2 + symbol_set_3
 
-            # check to see if our symbol is in the list of symbols we pulled from the three exchanges
+            # Check to see if our symbol is in the list of symbols we pulled from the exchanges.
             return symbol in all_symbols
 
-        # return true if not a stock
+        # Return true if not a stock
         return True
 
     @commands.before_invoke(record.record_usage)
@@ -124,7 +164,7 @@ class Stonks(Cog):
         name="stocks", aliases=["stock", "stonk", "stonks", "stinks", "stink"]
     )
     async def stock_market(self, ctx: Context, *stonks: str):
-        """Viewer of the active USA stock market and its value in ramen"""
+        """Viewer of the active USA stock market and its value in coin"""
 
         if stonks == ():
             await ctx.send_help(ctx.command)
@@ -140,7 +180,7 @@ class Stonks(Cog):
         embed = embeds.make_embed(
             ctx=ctx,
             title="STONKS:",
-            description="Trading for :ramen:\n $0.01 = 1 :ramen:",
+            description="Trading for :coin:\n $0.01 = 1 :coin:",
             image_url="https://cdn.discordapp.com/attachments/653793817299910689/766603822579580938/pepedeal.png",
         )
         for stonk in stonk_dict:
@@ -198,18 +238,18 @@ class Stonks(Cog):
         if int(stonk[1]["c"] * 100) < 1:
             await embeds.warning_message(
                 ctx,
-                "As your financial advisor, I can't allow you to buy stocks less than 1 :ramen:",
+                "As your financial advisor, I can't allow you to buy stocks less than 1 :coin:",
             )
             return
 
         purchase_price = round(number_of_stonks * stonk[1]["c"] * 100, 6)
 
-        if purchase_price > (bal := subby_api.get_balance(ctx.author.id)):
+        if purchase_price > (bal := float(Bank(ctx.author))):
             await embeds.error_message(
                 ctx=ctx,
-                description="You do not have enough ramen.\n"
-                f"Amount needed: **`{round(purchase_price,2):,.2f}`** :ramen:\n"
-                f"Current balance: **`{bal:,}`**` :ramen:",
+                description="You do not have enough coin.\n"
+                f"Amount needed: **`{round(purchase_price,2):,.2f}`** :coin:\n"
+                f"Current balance: **`{bal:,}`**` :coin:",
             )
             return
 
@@ -217,12 +257,7 @@ class Stonks(Cog):
             database.get_db(), engine_kwargs={"pool_recycle": 300}
         ) as db:
             try:
-                subby_api.subtract_balance(
-                    member_id=ctx.author.id, amount=purchase_price, edit_house=True
-                )
-                subby_api.record_ledger(
-                    ctx.author.id,
-                    self.bot.user.id,
+                Bank(ctx.author).subtract(
                     purchase_price,
                     f"Buying **{number_of_stonks:,}** shares of **{stonk[0]}**",
                 )
@@ -248,7 +283,7 @@ class Stonks(Cog):
             ctx=ctx,
             title=f"Stock purchased: {stonk[0]}",
             description=f"Purchased **{number_of_stonks:,}** share(s) of {stonk[0]}\n"
-            f"Costing **`{round(purchase_price,2):,.2f}`** :ramen:",
+            f"Costing **`{round(purchase_price,2):,.2f}`** :coin:",
             image_url="https://cdn.discordapp.com/attachments/653793817299910689/766603822579580938/pepedeal.png",
             color=constants.Colours.bright_green,
         )
@@ -319,8 +354,8 @@ class Stonks(Cog):
                         ctx=ctx,
                         title="Confirm sell",
                         description=f"Type **`Confirm`** to sell your **`{number_of_stonks}`** "
-                        f"shares for **`{sell_price:,.2f}`** :ramen:.\n"
-                        f"The Brokerage fee is: **`{fee:,.0f}`** :ramen:",
+                        f"shares for **`{sell_price:,.2f}`** :coin:.\n"
+                        f"The Brokerage fee is: **`{fee:,.0f}`** :coin:",
                     ),
                     delete_after=45,
                 )
@@ -331,12 +366,7 @@ class Stonks(Cog):
                     await rep.reply("Sell timed out, canceled", delete_after=15)
                     return
 
-                subby_api.add_balance(
-                    member_id=ctx.author.id, amount=sell_price - fee, edit_house=True
-                )
-                subby_api.record_ledger(
-                    self.bot.user.id,
-                    ctx.author.id,
+                Bank(ctx.author).add(
                     sell_price - fee,
                     f"Selling **{number_of_stonks:,}** shares of **{stonk[0]}**",
                 )
@@ -362,7 +392,7 @@ class Stonks(Cog):
             ctx=ctx,
             title=f"Stock Sold: {stonk[0]}",
             description=f"Sold **{number_of_stonks:,}** share(s) of {stonk[0]}\n"
-            f"For **`{sell_price:.2f}`** :ramen:",
+            f"For **`{sell_price:.2f}`** :coin:",
             image_url="https://cdn.discordapp.com/attachments/653793817299910689/766603822579580938/pepedeal.png",
             color=constants.Colours.bright_green,
         )
@@ -424,7 +454,7 @@ class Stonks(Cog):
                     f"[{stonk}](https://finance.yahoo.com/quote/{stonk})\n"
                     f" Shares:**` {stonk_amount:>7,} `** Value:**` {price:>10,.0f}`**"
                 )
-        embed.title += f": {investment:,.0f} :ramen:"
+        embed.title += f": {investment:,.0f} :coin:"
         embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
         await LinePaginator.paginate(
             port, ctx, embed, max_size=2000, restrict_to_user=ctx.author
@@ -567,7 +597,7 @@ class Stonks(Cog):
                     f"[{stonk}](https://finance.yahoo.com/quote/{stonk})"
                     f" Shares:**` {stonk_amount:>7,} `** Value:**` {stonk_amount*price:>10,.0f}`**"
                 )
-        embed.title += f": {investment:,.0f} :ramen:"
+        embed.title += f": {investment:,.0f} :coin:"
         embed.set_footer(text=f"BROKERAGE FEE: {BROKERAGE_FEE_PERCENTAGE*100:.1f}% 🍜")
         await LinePaginator.paginate(
             port, ctx, embed, max_size=2000, restrict_to_user=ctx.author
