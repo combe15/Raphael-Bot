@@ -19,7 +19,6 @@ env.bak/
 venv.bak/
 
 # Raphael
-config.py
 .idea/
 .vscode/
 *config.yml

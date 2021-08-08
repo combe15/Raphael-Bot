@@ -23,13 +23,10 @@ logging.addLevelName(TRACE_LEVEL, "TRACE")
 
 # All of this is already happening by default!
 sentry_logging = LoggingIntegration(
-    level=log_level,        # Capture info and above as breadcrumbs
-    event_level=logging.ERROR  # Send errors as events
+    level=log_level,  # Capture info and above as breadcrumbs
+    event_level=logging.ERROR,  # Send errors as events
 )
-sentry_sdk.init(
-    dsn=constants.Sentry.dsn_key,
-    integrations=[sentry_logging]
-)
+sentry_sdk.init(dsn=constants.Sentry.dsn_key, integrations=[sentry_logging])
 
 
 def monkeypatch_trace(self: logging.Logger, msg: str, *args, **kwargs) -> None:
@@ -52,7 +49,9 @@ log_format = logging.Formatter(format_string)
 # Make a Log directory and file
 log_file = Path("logs", "bot.log")
 log_file.parent.mkdir(exist_ok=True)
-file_handler = handlers.RotatingFileHandler(log_file, maxBytes=5242880, backupCount=7, encoding="utf8")
+file_handler = handlers.RotatingFileHandler(
+    log_file, maxBytes=5242880, backupCount=7, encoding="utf8"
+)
 file_handler.setFormatter(log_format)
 
 
@@ -66,7 +65,7 @@ if "COLOREDLOGS_LEVEL_STYLES" not in os.environ:
         **coloredlogs.DEFAULT_LEVEL_STYLES,
         "trace": {"color": 246},
         "critical": {"background": "red"},
-        "debug": coloredlogs.DEFAULT_LEVEL_STYLES["info"]
+        "debug": coloredlogs.DEFAULT_LEVEL_STYLES["info"],
     }
 
 coloredlogs.DEFAULT_LOG_FORMAT = format_string

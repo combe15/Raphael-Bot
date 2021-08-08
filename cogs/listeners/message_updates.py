@@ -3,20 +3,18 @@ import logging
 from discord import Message, RawBulkMessageDeleteEvent, RawMessageUpdateEvent
 from discord.ext import commands
 
-import constants
-from tools import embeds
-
 log = logging.getLogger(__name__)
 
+
 class MessageUpdates(commands.Cog):
-    """ Message event handler cog. """
+    """Message event handler cog."""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_message_delete(self, message: Message):    
-        """ Event Listener which is called when a message is deleted.
+    async def on_message_delete(self, message: Message):
+        """Event Listener which is called when a message is deleted.
 
         Args:
             message (Message): The deleted message.
@@ -30,13 +28,17 @@ class MessageUpdates(commands.Cog):
         if message.author.bot:
             return
         if message.embeds:
-            log.info(f"in {message.channel.name} {message.author}'s message was deleted: {message.embeds}")
+            log.info(
+                f"in {message.channel.name} {message.author}'s message was deleted: {message.embeds}"
+            )
         else:
-            log.info(f"in {message.channel.name} {message.author}'s message was deleted: {message.clean_content}")
+            log.info(
+                f"in {message.channel.name} {message.author}'s message was deleted: {message.clean_content}"
+            )
 
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload: RawBulkMessageDeleteEvent):
-        """ Event Listener which is called when a message is deleted.
+        """Event Listener which is called when a message is deleted.
 
         Args:
             payload (RawBulkMessageDeleteEvent): The raw event payload data.
@@ -50,7 +52,7 @@ class MessageUpdates(commands.Cog):
 
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, messages: list):
-        """ Event Listener which is called when messages are bulk deleted.
+        """Event Listener which is called when messages are bulk deleted.
 
         Args:
             messages (list): The messages that have been deleted.
@@ -64,7 +66,7 @@ class MessageUpdates(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_bulk_message_delete(self, payload: RawBulkMessageDeleteEvent):
-        """ Event Listener which is called when a bulk delete is triggered.
+        """Event Listener which is called when a bulk delete is triggered.
 
         Args:
             payload (RawBulkMessageDeleteEvent): The raw event payload data.
@@ -78,7 +80,7 @@ class MessageUpdates(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: Message, after: Message):
-        """ Event Listener which is called when a message is edited.
+        """Event Listener which is called when a message is edited.
 
         Note:
             This requires Intents.messages to be enabled.
@@ -101,7 +103,7 @@ class MessageUpdates(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_message_edit(self, payload: RawMessageUpdateEvent):
-        """ Event Listener which is called when a message is edited.
+        """Event Listener which is called when a message is edited.
 
         Note:
             This requires Intents.messages to be enabled.
@@ -115,7 +117,7 @@ class MessageUpdates(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: Message):
-        """ Event Listener which is called when a Message is created and sent.
+        """Event Listener which is called when a Message is created and sent.
 
         Parameters:
             message (Message): A Message of the current message.
@@ -139,14 +141,15 @@ class MessageUpdates(commands.Cog):
                         return
                     except:
                         pass
+
         await filter_message(message)
         if message.author.bot:
             return
-        
+
         await self.bot.process_commands(message)
 
 
 def setup(bot: commands.Bot) -> None:
-    """ Load the message_updates cog. """
+    """Load the message_updates cog."""
     bot.add_cog(MessageUpdates(bot))
     log.info("Cog loaded: message_updates")

@@ -11,12 +11,16 @@ from tools import database
 log = logging.getLogger(__name__)
 bot = commands.Bot(
     command_prefix=constants.Bot.prefix,
-    intents=discord.Intents(messages=True, guilds=True, members=True, bans=True, reactions=True),
-    case_insensitive=True)
+    intents=discord.Intents(
+        messages=True, guilds=True, members=True, bans=True, reactions=True
+    ),
+    case_insensitive=True,
+)
+
 
 @bot.event
 async def on_ready():
-    """ Called when the client is done preparing the data received from Discord.
+    """Called when the client is done preparing the data received from Discord.
 
     For more information:
         https://discordpy.readthedocs.io/en/stable/api.html#discord.on_ready
@@ -27,21 +31,22 @@ async def on_ready():
     # Adding in a activity message when the bot begins.
     await bot.change_presence(
         activity=discord.Activity(
-            type=discord.ActivityType.listening,
-            name=f"{constants.Bot.prefix}help"
+            type=discord.ActivityType.listening, name=f"{constants.Bot.prefix}help"
         )
     )
 
+
 @bot.event
 async def on_message(message: discord.Message):
-    """ This event listener has been moved to message_updates.py
+    """This event listener has been moved to message_updates.py
 
     Unfortunately, this listener has to remain and do nothing, otherwise,
     any message will be ran twice and cause issues. Lame, i know
     """
     # Do nothing
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Attempt to create the db, tables, and columns for Raphael.
     database.setup_db()
 

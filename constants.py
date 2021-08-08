@@ -12,7 +12,7 @@ import logging
 import os
 from collections.abc import Mapping
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Union
 
 import yaml
 
@@ -36,7 +36,7 @@ def _env_var_constructor(loader, node):
     default = None
 
     # Check if the node is a plain string value
-    if node.id == 'scalar':
+    if node.id == "scalar":
         value = loader.construct_scalar(node)
         key = str(value)
     else:
@@ -55,7 +55,7 @@ def _env_var_constructor(loader, node):
 
 
 def _join_var_constructor(loader, node):
-    """ Implements a custom YAML tag for concatenating other tags in the document to strings.
+    """Implements a custom YAML tag for concatenating other tags in the document to strings.
 
     This allows for a much more DRY configuration file.
     """
@@ -106,7 +106,7 @@ def check_required_keys(keys):
     for key_path in keys:
         lookup = _CONFIG_YAML
         try:
-            for key in key_path.split('.'):
+            for key in key_path.split("."):
                 lookup = lookup[key]
                 if lookup is None:
                     raise KeyError(key)
@@ -114,17 +114,16 @@ def check_required_keys(keys):
             log.critical(
                 f"A configuration for `{key_path}` is required, but was not found. "
                 "Please set it in `config.yml` or setup an environment variable and try again."
-                )
+            )
             raise
 
 
 try:
-    required_keys = _CONFIG_YAML['config']['required_keys']
+    required_keys = _CONFIG_YAML["config"]["required_keys"]
 except KeyError:
     pass
 else:
     check_required_keys(required_keys)
-
 
 
 class YAMLGetter(type):
@@ -169,12 +168,14 @@ class YAMLGetter(type):
                 return _CONFIG_YAML[cls.section][cls.subsection][name]
             return _CONFIG_YAML[cls.section][name]
         except KeyError:
-            dotted_path = '.'.join(
+            dotted_path = ".".join(
                 (cls.section, cls.subsection, name)
-                if cls.subsection is not None else (cls.section, name)
+                if cls.subsection is not None
+                else (cls.section, name)
             )
             log.critical(
-                f"Tried accessing configuration variable at `{dotted_path}`, but it could not be found.")
+                f"Tried accessing configuration variable at `{dotted_path}`, but it could not be found."
+            )
             raise
 
     def __getitem__(cls, name):
@@ -188,7 +189,8 @@ class YAMLGetter(type):
 
 # Dataclasses
 class Bot(metaclass=YAMLGetter):
-    """ Type hints of `config.yml` "bot". """
+    """Type hints of `config.yml` "bot"."""
+
     section = "bot"
 
     prefix: str
@@ -209,13 +211,6 @@ class Sentry(metaclass=YAMLGetter):
     section = "sentry"
 
     dsn_key: str
-
-
-class Subby_api(metaclass=YAMLGetter):
-    section = "subby_api"
-
-    address: str
-    api_key: str
 
 
 class Finnhub(metaclass=YAMLGetter):
@@ -269,7 +264,7 @@ class Emojis(metaclass=YAMLGetter):
     close: str
 
 
-class Icons(metaclass=YAMLGetter):   
+class Icons(metaclass=YAMLGetter):
     section = "style"
     subsection = "icons"
 
