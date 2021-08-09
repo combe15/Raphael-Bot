@@ -75,7 +75,7 @@ class Bank:
                 SELECT opening_balance, transaction_amount
                 FROM bank
                 WHERE author_id = {self.user.id}
-                ORDER BY timestamp
+                ORDER BY id DESC
                 LIMIT 1
                 """
             result = db.query(statement)
@@ -105,7 +105,7 @@ class Bank:
         if amount == 0:  # Pointless, do nothing.
             return 0
 
-        self.__record_ledger__(amount, reason)
+        self.__record_ledger__(-amount, reason)
         self.balance -= amount
         return self
 
