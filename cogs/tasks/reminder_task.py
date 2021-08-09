@@ -16,8 +16,7 @@ class ReminderTask(Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
-        # Task disabled to midigate database client leak bug.
-        # self.check_for_reminder.start()
+        self.check_for_reminder.start()
 
     def cog_unload(self):
         self.check_for_reminder.cancel()
