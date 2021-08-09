@@ -171,7 +171,7 @@ class CustomHelpCommand(HelpCommand):
             # The length of commands is included for later use when aggregating into pages for the paginator.
             for index in range(0, len(sorted_commands), COMMANDS_PER_PAGE * 2):
                 truncated_lines = command_detail_lines[
-                    index : index + COMMANDS_PER_PAGE * 2
+                    index:index + COMMANDS_PER_PAGE * 2
                 ]
                 joined_lines = "".join(truncated_lines)
                 cog_or_category_pages.append(
@@ -286,7 +286,7 @@ class CustomHelpCommand(HelpCommand):
             # The length of commands is included for later use when aggregating into pages for the paginator.
             for index in range(0, len(sorted_commands), COMMANDS_PER_PAGE * 2):
                 truncated_lines = command_detail_lines[
-                    index : index + COMMANDS_PER_PAGE * 2
+                    index:index + COMMANDS_PER_PAGE * 2
                 ]
                 joined_lines = "".join(truncated_lines)
                 group_pages.append((f"{joined_lines}", len(truncated_lines)))
@@ -342,21 +342,7 @@ class Help(Cog):
         # Overriding default help command with new custom command.
         self.old_help_command = bot.help_command
         bot.help_command = CustomHelpCommand()
-        bot.help_command.add_check(self.check)
         bot.help_command.cog = self
-
-    def check(self, ctx):
-        perms = ctx.me.guild_permissions
-        return all(
-            (
-                perms.add_reactions,
-                perms.embed_links,
-                perms.external_emojis,
-                perms.manage_messages,
-                perms.use_external_emojis,
-                perms.read_message_history,
-            )
-        )
 
     def cog_unload(self) -> None:
         """Reset the help command when the cog is unloaded."""
