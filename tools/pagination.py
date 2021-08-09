@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import typing
 
@@ -8,20 +7,10 @@ from discord.ext.commands import Context, Paginator
 
 from tools.views.page_menu import PageMenu
 
-import constants
-
-FIRST_EMOJI = constants.Emojis.first
-LEFT_EMOJI = constants.Emojis.previous
-RIGHT_EMOJI = constants.Emojis.next
-LAST_EMOJI = constants.Emojis.last
-DELETE_EMOJI = constants.Emojis.close
-
-PAGINATION_EMOJI = (FIRST_EMOJI, LEFT_EMOJI, RIGHT_EMOJI, LAST_EMOJI, DELETE_EMOJI)
-
 log = logging.getLogger(__name__)
 
 
-class EmptyPaginatorEmbed(Exception):
+class EmptyPaginatorEmbedError(Exception):
     """Raised when attempting to paginate with empty contents."""
 
     pass
@@ -42,36 +31,37 @@ class LinePaginator(Paginator):
         self,
         prefix: str = "```",
         suffix: str = "```",
-        max_size: int = 2000,
-        scale_to_size: int = 2000,
+        max_size: int = 4000,
+        scale_to_size: int = 4000,
         max_lines: typing.Optional[int] = None,
-        linesep: str = "\n",  # Not Implemented TODO
+        linesep: str = "\n"
     ) -> None:
         """
         This function overrides the Paginator.__init__ from inside discord.ext.commands.\n
         It overrides in order to allow us to configure the maximum number of lines per page.
         """
-        self.prefix = prefix
-        self.suffix = suffix
-        self.linesep = linesep  # Not Implemented TODO
-
-        # Embeds that exceed 2048 characters will result in an HTTPException
-        # (Discord API limit), so we've set a limit of 2000
-        if max_size > 2000:
+        # Embeds that exceed 4096 characters will result in an HTTPException
+        # (Discord API limit), so we've set a limit of 4000
+        if max_size > 4000:
             raise ValueError(
-                f"max_size must be <= 2,000 characters. ({max_size} > 2000)"
+                f"max_size must be <= 4,000 characters. ({max_size} > 4000)"
             )
 
-        self.max_size = max_size - len(suffix)
+        super().__init__(
+            prefix,
+            suffix,
+            max_size - len(suffix),
+            linesep
+        )
 
         if scale_to_size < max_size:
             raise ValueError(
                 f"scale_to_size must be >= max_size. ({scale_to_size} < {max_size})"
             )
 
-        if scale_to_size > 2000:
+        if scale_to_size > 4000:
             raise ValueError(
-                f"scale_to_size must be <= 2,000 characters. ({scale_to_size} > 2000)"
+                f"scale_to_size must be <= 4,000 characters. ({scale_to_size} > 4000)"
             )
 
         self.scale_to_size = scale_to_size - len(suffix)
@@ -195,14 +185,14 @@ class LinePaginator(Paginator):
         suffix: str = "",
         max_lines: typing.Optional[int] = None,
         max_size: int = 500,
-        scale_to_size: int = 2000,
+        scale_to_size: int = 4000,
         empty: bool = True,
         restrict_to_user: User = None,
-        timeout: int = 300,
+        timeout: float = 300,
         footer_text: str = None,
         url: str = None,
         exception_on_empty_embed: bool = False,
-        time_to_delete: int = None,
+        time_to_delete: float = None,
         linesep: str = "\n",  # Not Implemented TODO
     ) -> typing.Optional[discord.Message]:
         """
@@ -223,31 +213,6 @@ class LinePaginator(Paginator):
         >await LinePaginator.paginate([line for line in lines], ctx, embed)
         """
 
-        def event_check(reaction_: discord.Reaction, user_: discord.Member) -> bool:
-            """Make sure that this reaction is what we want to operate on."""
-            no_restrictions = (
-                # Pagination is not restricted
-                not restrict_to_user
-                # The reaction was by a whitelisted user
-                or user_.id == restrict_to_user.id
-            )
-
-            return (
-                # Conditions for a successful pagination:
-                all(
-                    (
-                        # Reaction is on this message
-                        reaction_.message.id == message.id,
-                        # Reaction is one of the pagination emotes
-                        str(reaction_.emoji) in PAGINATION_EMOJI,
-                        # Reaction was not made by the Bot
-                        user_.id != ctx.bot.user.id,
-                        # There were no restrictions
-                        no_restrictions,
-                    )
-                )
-            )
-
         paginator = cls(
             prefix=prefix,
             suffix=suffix,
@@ -261,7 +226,7 @@ class LinePaginator(Paginator):
         if not lines:
             if exception_on_empty_embed:
                 log.exception("Pagination asked for empty lines iterable")
-                raise EmptyPaginatorEmbed("No lines to paginate")
+                raise EmptyPaginatorEmbedError("No lines to paginate")
 
             log.debug(
                 "No lines to add to paginator, adding '(nothing to display)' message"
@@ -307,7 +272,7 @@ class LinePaginator(Paginator):
                 embed.url = url
                 log.trace(f"Setting embed url to '{url}'")
 
-            view = PageMenu()
+            view = PageMenu(restrict_to_user, timeout=timeout)
 
             log.trace("Disable First and back button")
             view.first.disabled = True
@@ -334,7 +299,7 @@ class LinePaginator(Paginator):
                 return await message.delete()
 
             elif view.value == "first":
-                view = PageMenu()
+                view = PageMenu(restrict_to_user, timeout=timeout)
                 view.first.disabled = True
                 view.back.disabled = True
                 current_page = 0
@@ -355,7 +320,7 @@ class LinePaginator(Paginator):
                 await message.edit(embed=embed, view=view)
 
             elif view.value == "last":
-                view = PageMenu()
+                view = PageMenu(restrict_to_user, timeout=timeout)
                 view.last.disabled = True
                 view.next.disabled = True
                 current_page = len(paginator.pages) - 1
@@ -376,7 +341,7 @@ class LinePaginator(Paginator):
                 await message.edit(embed=embed, view=view)
 
             elif view.value == "back":
-                view = PageMenu()
+                view = PageMenu(restrict_to_user, timeout=timeout)
 
                 if current_page <= 0:
                     log.debug(
@@ -407,7 +372,7 @@ class LinePaginator(Paginator):
                 await message.edit(embed=embed, view=view)
 
             elif view.value == "next":
-                view = PageMenu()
+                view = PageMenu(restrict_to_user, timeout=timeout)
 
                 if current_page >= len(paginator.pages) - 1:
                     log.debug(
