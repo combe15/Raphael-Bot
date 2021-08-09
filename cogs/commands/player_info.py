@@ -25,7 +25,7 @@ class PlayerInfo(commands.Cog):
         embed = embeds.make_embed(
             ctx=ctx,
             title=f"{member.display_name}'s User Info",
-            image_url=member.avatar_url,
+            image_url=member.avatar.url,
             color="blurple",
             description="Returning info about selected user",
         )
@@ -51,9 +51,9 @@ class PlayerInfo(commands.Cog):
         """Returns the profile picture of the invoker or the mentioned user."""
         user = user or ctx.author
         embed = embeds.make_embed(
-            ctx=ctx, description=f"[{user.name}]({user.avatar_url})"
+            ctx=ctx, description=f"[{user.name}]({user.avatar.url})"
         )
-        embed.set_image(url=user.avatar_url)
+        embed.set_image(url=user.avatar.url)
         await ctx.send(embed=embed)
 
     @commands.before_invoke(record.record_usage)
@@ -75,7 +75,7 @@ class PlayerInfo(commands.Cog):
             description=ctx.guild.name,
             colour=member.colour,
         )
-        embed.set_author(icon_url=member.avatar_url, name=str(member))
+        embed.set_author(icon_url=member.avatar.url, name=str(member))
 
         # \uFEFF is a Zero-Width Space, which basically allows us to have an empty field name.
         embed.add_field(name="\uFEFF", value=perms)

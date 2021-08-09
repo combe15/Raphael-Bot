@@ -8,7 +8,7 @@ def make_embed(
     ctx: Context = None,
     color="dark_theme",
     image_url: str = None,
-    author=True,
+    author: bool = True,
 ) -> Embed:
     """General embed template
 
@@ -67,7 +67,7 @@ def make_embed(
 
     # Setting the author field and setting their profile pic as the image.
     if author and ctx is not None:
-        embed.set_author(icon_url=ctx.author.avatar_url, name=str(ctx.author))
+        embed.set_author(icon_url=ctx.author.avatar.url, name=str(ctx.author))
 
     # Setting the embed side image if a url was given.
     if image_url:

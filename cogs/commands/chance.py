@@ -295,7 +295,7 @@ class Chance(Cog):
             title=f"{ctx.author.display_name} wants to play Connect Four",
             description="Press play to accept the challenge",
         )
-        embed.set_author(icon_url=ctx.author.avatar_url, name=str(ctx.author))
+        embed.set_author(icon_url=ctx.author.avatar.url, name=str(ctx.author))
         embed.set_footer(text=f"Bet Amount: **{bet:,}**")
         message = await ctx.reply(embed=embed)
 
@@ -474,7 +474,7 @@ class Chance(Cog):
 
                 await message.clear_reactions()
                 embed.set_author(
-                    icon_url=winner.avatar_url,
+                    icon_url=winner.avatar.url,
                     name=f"{winner.display_name} is the WINNER",
                 )
                 if bet:
@@ -492,7 +492,7 @@ class Chance(Cog):
 
                 await message.clear_reactions()
                 embed.set_author(
-                    icon_url=ctx.bot.user.avatar_url, name="The game is a draw"
+                    icon_url=ctx.bot.user.avatar.url, name="The game is a draw"
                 )
                 if bet:
                     embed.add_field(
