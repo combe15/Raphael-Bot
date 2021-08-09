@@ -2,6 +2,7 @@ import logging
 import random
 import asyncio
 import time
+from typing import Union
 
 import discord
 from discord.ext import commands
@@ -26,7 +27,7 @@ class Chance(Cog):
     async def roll(
         self, ctx: Context, number_of_dice: int = 1, number_of_sides: int = 6
     ):
-        """Simulates rolling dice. <number_of_dice> <number_of_sides>"""
+        """Simulates rolling dice."""
 
         number_of_dice = int(number_of_dice)
         number_of_sides = int(number_of_sides)
@@ -86,10 +87,10 @@ class Chance(Cog):
             )
             return
 
-        if (bal := Bank(ctx.author)) < bet:
+        if (bank := Bank(ctx.author)) < bet:
             await embeds.error_message(
                 ctx=ctx,
-                description=f"You can't bet more than you have\nYour balance: {bal}",
+                description=f"You can't bet more than you have\n{str(bank)}",
             )
             return
 
@@ -101,27 +102,33 @@ class Chance(Cog):
         CASH_EMOJI = constants.Emojis.cash_out  # [:money_with_wings:]
         CROSS_EMOJI = constants.Emojis.cross_mark  # [:x:]
 
-        def check(reaction, user) -> bool:
-            """Checks if reaction is from author & is applicable to cup"""
+        def check(
+            reaction: discord.Reaction, user: Union[discord.Member, discord.User]
+        ) -> bool:
+            """Checks if reaction is from author & is applicable to game"""
+            foo = all(
+                (
+                    # Checking if user who used a reaction, was the same user who issued the command.
+                    user == bank.user,
+                    # Checking the reaction was to the same message as the slot machine embed.
+                    reaction.message.id == message.id,
+                    # Checking if the reaction emoji is applicable to the slot machine commands.
+                    str(reaction.emoji)
+                    in [
+                        ONE_EMOJI,
+                        TWO_EMOJI,
+                        THREE_EMOJI,
+                        CASH_EMOJI,
+                    ],
+                )
+            )
 
-            # Checking if user who used a reaction, was the same user who issued the command
-            author_check = user == ctx.author
-            # Checking the reaction was to the same message as the slot machine embed
-            message_check = reaction.message.id == message.id
-            # Checking if the reaction emoji is applicable to the slot machine commands
-            reaction_check = str(reaction.emoji) in [
-                ONE_EMOJI,
-                TWO_EMOJI,
-                THREE_EMOJI,
-                CASH_EMOJI,
-            ]
+            if foo:
+                # Logging the action in case something breaks in the future.
+                log.debug(f"{ctx.author=} reacted with {reaction.emoji=} in cups")
+            return foo
 
-            if x := (author_check and message_check and reaction_check):
-                # logging the action in case something breaks in the future
-                log.trace(f"{ctx.author=} reacted with {reaction.emoji=} in cups")
-            return x
-
-        async def default_embed(message: discord.Message, bet: int):
+        async def default_embed(message: discord.Message, bet: int) -> None:
             embed = embeds.make_embed(
                 ctx=ctx, title="Cups", description="Where's the coin? :coin:"
             )
@@ -146,13 +153,13 @@ class Chance(Cog):
                 log.trace(f"{ctx.author=} wins in cups with {choice=} {elements=}")
                 bet *= 2
                 embed = embeds.make_embed(
-                    ctx=ctx, title="Cups", description="**WOOOW!** YOU WON!"
+                    ctx=ctx, title="Cups", description="**WINNER WINNER!**"
                 )
                 embed.add_field(name=" ".join(elements), value=f"You won {bet} coin!")
             else:
                 log.trace(f"{ctx.author=} looses it all with {choice=} {elements=}")
                 embed = embeds.make_embed(
-                    ctx=ctx, title="Cups", description="Better luck next time"
+                    ctx=ctx, title="Cups", description="Better luck next time."
                 )
                 embed.add_field(
                     name=(" ".join(elements)), value=f"You lost {bet} coin."
@@ -160,7 +167,7 @@ class Chance(Cog):
                 bet = 0
 
             embed.set_footer(
-                text=f"Risking: {bet} 🍜\nChoices: {ONE_EMOJI} {TWO_EMOJI} {THREE_EMOJI}"
+                text=f"Risking: {bet} \nChoices: {ONE_EMOJI} {TWO_EMOJI} {THREE_EMOJI}"
             )
             log.trace("cups, Sending embed")
             await message.edit(embed=embed)
@@ -180,7 +187,7 @@ class Chance(Cog):
                     title="Cups",
                     description=f"Awarded {bet} :coin:",
                 )
-                Bank(ctx.author).add(bet, "Cups game")
+                bank.add(bet, "Cups game")
                 await message.edit(embed=emb)
                 return
 
@@ -190,12 +197,12 @@ class Chance(Cog):
             [CROSS_EMOJI, CROSS_EMOJI, COIN_EMOJI],
         ]
 
-        bal = float(Bank(ctx.author).subtract(bet))
+        bal = float(bank.subtract(bet, "Cups game"))
 
         message = await default_embed(None, bet)
         # getting the message object for editing and reacting
 
-        # first adding reactions
+        # Adding reactions to act like buttons
         for emoji in [ONE_EMOJI, TWO_EMOJI, THREE_EMOJI, CASH_EMOJI]:
             await message.add_reaction(emoji)
 
@@ -850,9 +857,7 @@ class Chance(Cog):
                 embed.set_footer(
                     text="📍: Spin • 💸: Cash Out\n" "1️⃣, 5️⃣, 🔟: bet amount"
                 )
-                embed.add_field(
-                    name="Credits", value=f"{credit:,} {COIN}", inline=True
-                )
+                embed.add_field(name="Credits", value=f"{credit:,} {COIN}", inline=True)
                 embed.add_field(name="Bet", value=f"{bet:,} {COIN}", inline=True)
                 await message.edit(embed=embed)
                 time.sleep(0.5)  # sleep because of rate limit
