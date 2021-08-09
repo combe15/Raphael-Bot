@@ -6,6 +6,8 @@ import discord
 from discord.abc import User
 from discord.ext.commands import Context, Paginator
 
+from tools.views.page_menu import PageMenu
+
 import constants
 
 FIRST_EMOJI = constants.Emojis.first
@@ -305,36 +307,40 @@ class LinePaginator(Paginator):
                 embed.url = url
                 log.trace(f"Setting embed url to '{url}'")
 
+            view = PageMenu()
+
+            log.trace("Disable First and back button")
+            view.first.disabled = True
+            view.back.disabled = True
+
             log.debug("Sending first page to channel...")
-            message = await ctx.send(embed=embed, delete_after=time_to_delete)
-
-        log.debug("Adding emoji reactions to message...")
-
-        for emoji in PAGINATION_EMOJI:
-            # Add all the applicable emoji to the message
-            log.trace(f"Adding reaction: {repr(emoji)}")
-            await message.add_reaction(emoji)
+            message = await ctx.send(
+                embed=embed, delete_after=time_to_delete, view=view
+            )
 
         while True:
-            try:
-                reaction, user = await ctx.bot.wait_for(
-                    "reaction_add", timeout=timeout, check=event_check
-                )
-                log.trace(f"Got reaction: {reaction}")
-            except asyncio.TimeoutError:
-                log.debug("Timed out waiting for a reaction")
-                break  # We're done, no reactions for the last 5 minutes
 
-            if str(reaction.emoji) == DELETE_EMOJI:
-                log.debug("Got delete reaction")
+            await view.wait()
+
+            if view.value is None:
+                log.debug("Timed out waiting for an interaction, clearing buttons.")
+                try:
+                    return await message.edit(view=view.clear_items())
+                except discord.NotFound:
+                    break  # do nothing
+
+            elif view.value == "close":
+                log.debug("Got delete interaction")
                 return await message.delete()
 
-            if str(reaction.emoji) == FIRST_EMOJI:
-                await message.remove_reaction(reaction.emoji, user)
+            elif view.value == "first":
+                view = PageMenu()
+                view.first.disabled = True
+                view.back.disabled = True
                 current_page = 0
 
                 log.debug(
-                    f"Got first page reaction - changing to page 1/{len(paginator.pages)}"
+                    f"Got first page interaction - changing to page 1/{len(paginator.pages)}"
                 )
 
                 embed.description = paginator.pages[current_page]
@@ -346,14 +352,16 @@ class LinePaginator(Paginator):
                     embed.set_footer(
                         text=f"Page {current_page + 1}/{len(paginator.pages)}"
                     )
-                await message.edit(embed=embed)
+                await message.edit(embed=embed, view=view)
 
-            if str(reaction.emoji) == LAST_EMOJI:
-                await message.remove_reaction(reaction.emoji, user)
+            elif view.value == "last":
+                view = PageMenu()
+                view.last.disabled = True
+                view.next.disabled = True
                 current_page = len(paginator.pages) - 1
 
                 log.debug(
-                    f"Got last page reaction - changing to page {current_page + 1}/{len(paginator.pages)}"
+                    f"Got last page interaction - changing to page {current_page + 1}/{len(paginator.pages)}"
                 )
 
                 embed.description = paginator.pages[current_page]
@@ -365,21 +373,25 @@ class LinePaginator(Paginator):
                     embed.set_footer(
                         text=f"Page {current_page + 1}/{len(paginator.pages)}"
                     )
-                await message.edit(embed=embed)
+                await message.edit(embed=embed, view=view)
 
-            if str(reaction.emoji) == LEFT_EMOJI:
-                await message.remove_reaction(reaction.emoji, user)
+            elif view.value == "back":
+                view = PageMenu()
 
                 if current_page <= 0:
                     log.debug(
-                        "Got previous page reaction, but we're on the first page - ignoring"
+                        "Got previous page interaction, but we're on the first page - ignoring"
                     )
                     continue
 
                 current_page -= 1
                 log.debug(
-                    f"Got previous page reaction - changing to page {current_page + 1}/{len(paginator.pages)}"
+                    f"Got previous page interaction - changing to page {current_page + 1}/{len(paginator.pages)}"
                 )
+
+                if current_page == 0:
+                    view.first.disabled = True
+                    view.back.disabled = True
 
                 embed.description = paginator.pages[current_page]
 
@@ -392,21 +404,25 @@ class LinePaginator(Paginator):
                         text=f"Page {current_page + 1}/{len(paginator.pages)}"
                     )
 
-                await message.edit(embed=embed)
+                await message.edit(embed=embed, view=view)
 
-            if str(reaction.emoji) == RIGHT_EMOJI:
-                await message.remove_reaction(reaction.emoji, user)
+            elif view.value == "next":
+                view = PageMenu()
 
                 if current_page >= len(paginator.pages) - 1:
                     log.debug(
-                        "Got next page reaction, but we're on the last page - ignoring"
+                        "Got next page interaction, but we're on the last page - ignoring"
                     )
                     continue
 
                 current_page += 1
                 log.debug(
-                    f"Got next page reaction - changing to page {current_page + 1}/{len(paginator.pages)}"
+                    f"Got next page interaction - changing to page {current_page + 1}/{len(paginator.pages)}"
                 )
+
+                if current_page + 1 == len(paginator.pages):
+                    view.next.disabled = True
+                    view.last.disabled = True
 
                 embed.description = paginator.pages[current_page]
 
@@ -419,10 +435,4 @@ class LinePaginator(Paginator):
                         text=f"Page {current_page + 1}/{len(paginator.pages)}"
                     )
 
-                await message.edit(embed=embed)
-
-        log.debug("Ending pagination and clearing reactions.")
-        try:
-            await message.clear_reactions()
-        except discord.NotFound:
-            pass  # do nothing
+                await message.edit(embed=embed, view=view)
