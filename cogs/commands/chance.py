@@ -10,6 +10,7 @@ from discord.ext.commands import Cog, Bot, Context, BucketType
 
 from tools import embeds, record
 from tools.bank import Bank
+from tools.views.slots_menu import SlotMenu
 import constants
 
 log = logging.getLogger(__name__)
@@ -666,37 +667,34 @@ class Chance(Cog):
 
     @commands.before_invoke(record.record_usage)
     @commands.bot_has_permissions(
-        manage_messages=True,
-        add_reactions=True,
         embed_links=True,
-        external_emojis=True,
-        use_external_emojis=True,
         read_message_history=True,
     )
     @commands.guild_only()
     @commands.max_concurrency(number=1, per=BucketType.user, wait=False)
-    @commands.max_concurrency(number=2, per=BucketType.default, wait=False)
+    @commands.max_concurrency(number=5, per=BucketType.default, wait=False)
     @commands.command(name="slot", aliases=["slots", "slot_machine", "sm"])
-    async def slot_machine(self, ctx: Context, credit: int = 10):
+    async def slot_machine2(self, ctx: Context, credit: int = 50):
         """Simulates a slot machine"""
 
         if credit < 1:
             await embeds.error_message(
-                ctx=ctx, description="credits must be higher or equal to 1"
+                ctx=ctx, description="Credits must be higher or equal to 1"
             )
             return
 
-        if (bal := Bank(ctx.author)) < credit:
+        if (bank := Bank(ctx.author)) < credit:
             await embeds.error_message(
                 ctx=ctx,
-                description=f"You do not have enough coin to bet that much\nYour balance: {bal}",
+                description=f"You do not have enough coin to bet that much\n\t{str(bank)}",
             )
             return
 
-        Bank(ctx.author).subtract(credit)
+        bank.subtract(credit)
 
         start_credit = credit
 
+        # Icons for slot machine
         SEVEN = constants.Emojis.number_seven
         BAR = constants.Emojis.bar
         MELLON = constants.Emojis.mellon
@@ -705,14 +703,9 @@ class Chance(Cog):
         HONEY = constants.Emojis.honey
         CHERRY = constants.Emojis.cherry
         LEMON = constants.Emojis.lemon
-        LEVER = constants.Emojis.lever
-        CASH_OUT = constants.Emojis.cash_out
-        BOMB = constants.Emojis.bomb
-        ONE = constants.Emojis.number_one
-        FIVE = constants.Emojis.number_five
-        TEN = constants.Emojis.number_ten
         COIN = constants.Emojis.coin
 
+        # Slot machine's ratios
         reel1 = {
             SEVEN: 1,
             BAR: 4,
@@ -744,36 +737,13 @@ class Chance(Cog):
             LEMON: 10,
         }
 
-        def check(reaction: str, user) -> bool:
-            """Checks if reaction is from author & is applicable to slot machine"""
-
-            # Checking if user who used a reaction, was the same user who issued the command
-            author_check = user == ctx.author
-            # Checking the reaction was to the same message as the slot machine embed
-            message_check = reaction.message.id == message.id
-            # Checking if the reaction emoji is applicable to the slot machine commands
-            reaction_check = str(reaction.emoji) in [
-                LEVER,
-                ONE,
-                FIVE,
-                TEN,
-                CASH_OUT,
-                BOMB,
-            ]
-
-            if x := (author_check and message_check and reaction_check):
-                # logging the action in case something breaks in the future
-                log.trace(
-                    f"{ctx.author} reacted with {reaction.emoji=} in slot machine"
-                )
-            return x
-
         def take_random(reel: dict) -> str:
             return random.choices(list(reel.keys()), weights=list(reel.values()), k=1)[
                 0
             ]
 
         def check_win(elements: list) -> int:
+            """Checks list and returns winning value."""
             points = 0
             element_dict = {}
             for i in elements:  # converting list into dict for ease of comparing
@@ -817,151 +787,149 @@ class Chance(Cog):
             if SEVEN in element_dict:
                 if element_dict[SEVEN] == 3:
                     points = 200
-            log.debug(f"{ctx.author=} won {points * bet} in slots!")
-            return points * bet
+            log.debug(f"{ctx.author=} won {points * BET} in slots!")
+            return points * BET
 
-        async def spin(credit: int) -> int:
-            # this for loop isn't needed, it just show some flare like the icons are shuffling
+        async def spin() -> "list[str]":
+            # This for loop is for aesthetics, it just show some flare like the icons are shuffling.
             for _ in range(3):
-                elements = [
+                elements: list[str] = [
                     take_random(reel1),
                     take_random(reel2),
                     take_random(reel3),
-                ]  # picking three items
+                ]  # Picking three items.
+                embed: discord.Embed = MESSAGE.embeds[0]
 
-                embed = embeds.make_embed(
-                    ctx=ctx,
-                    title="Slot Machine",
-                    description=" ".join(elements),
-                    image_url="https://i.imgur.com/SjYv07F.png",
-                )
+                embed.title = "Slot Machine"
+                embed.description = " ".join(elements)
 
-                if _ == 2 and (score := check_win(elements)):
-                    credit += score
-                    embed = embeds.make_embed(
-                        ctx=ctx,
-                        title="Slot Machine\n🎊🎊WINNER🎊🎊",
-                        description=(
-                            f"{'  '.join(elements)}\nYou won {score:,} credits!"
-                        ),
-                        image_url="https://i.imgur.com/SjYv07F.png",
-                    )
-                    log.debug(f"{ctx.author.mention=}, won {score=} with {elements=}")
+                await MESSAGE.edit(embed=embed)
 
-                log.trace(f"{ctx.author=}, results from spin: {elements=}")
-
-                # Must use actual emoji's here because discord sucks with emoji's in footer
-                # Credit: 10  Bet: 3
-                # 📍: Spin • 💸: Cash Out
-                # 1️⃣, 5️⃣, 🔟: bet amount
-                embed.set_footer(
-                    text="📍: Spin • 💸: Cash Out\n" "1️⃣, 5️⃣, 🔟: bet amount"
-                )
-                embed.add_field(name="Credits", value=f"{credit:,} {COIN}", inline=True)
-                embed.add_field(name="Bet", value=f"{bet:,} {COIN}", inline=True)
-                await message.edit(embed=embed)
                 time.sleep(0.5)  # sleep because of rate limit
+            return elements
+
+        async def display_win(credit: int, elements: "list[str]") -> int:
+
+            embed: discord.Embed = MESSAGE.embeds[0]
+            if winnings := check_win(elements):
+                credit += winnings
+                embed.title += "\n🎊🎊WINNER🎊🎊"
+                embed.description += f"\nYou won {winnings:,} credits!"
+            else:
+                embed.description += "\nSpin Again"
+
+            log.trace(f"{ctx.author=}, won {winnings=} with {elements=}")
+
+            embed.set_field_at(
+                index=0, name="Credits", value=f"{credit:,} {COIN}", inline=True
+            )
+            await MESSAGE.edit(embed=embed)
 
             return credit
 
-        async def change_bet(send=False):
-            elements = [SEVEN, SEVEN, SEVEN]
-            embed = embeds.make_embed(
-                ctx=ctx,
-                title="Slot Machine",
-                description="\t".join(elements),
-                image_url="https://i.imgur.com/SjYv07F.png",
-            )
-            log.trace(f"{ctx.author=}, changed bet: {bet=}")
-            embed.set_footer(text="📍: Spin • 💸: Cash Out\n1️⃣, 5️⃣, 🔟: bet amount")
-            embed.add_field(name="Credits", value=f"{credit:,} {COIN}", inline=True)
-            embed.add_field(name="Bet", value=f"{bet:,} {COIN}", inline=True)
+        async def change_bet(view: SlotMenu) -> None:
+            """Edit bet field"""
+            embed: discord.Embed = MESSAGE.embeds[0]
 
-            if send:
-                return await ctx.reply(embed=embed)
-            return await message.edit(embed=embed)
-
-        async def cash_out(credit):
-
-            log.debug("slot_machine, cash_out: clearing reactions")
-            await message.clear_reactions()
-
-            embed = embeds.make_embed(
-                ctx=ctx,
-                title="Cashing Out",
-                description=f"**Credits**: \t**``{credit:,} {COIN}``**\n"
-                f"**Net**: \t**``{credit-start_credit:,}{COIN}``**\n"
-                f"**Bank**: \t**``{Bank(ctx.author).add(credit, 'Slot Machine'):,} {COIN}``**",
-                image_url="https://i.imgur.com/SjYv07F.png",
+            embed.set_field_at(
+                index=1, name="Bet", value=f"{BET:,} {COIN}", inline=True
             )
 
-            log.trace("slot_machine, cash_out: sending message")
-            await message.edit(embed=embed)
+            log.trace(f"{ctx.author=}, changed bet: {BET=}")
 
-        bet = 1
-        message = await change_bet(True)
+            await MESSAGE.edit(embed=embed, view=view)
 
-        # first adding reactions
-        for react in [LEVER, ONE, FIVE, TEN, CASH_OUT]:
-            await message.add_reaction(react)
+        async def cash_out(credit) -> None:
+            embed: discord.Embed = MESSAGE.embeds[0]
+
+            embed.title = "Cashing Out"
+            embed.description = (
+                f"**Credits**: \t**``{credit:,}`` {COIN}**\n"
+                f"**Net**: \t**``{credit-start_credit:,}`` {COIN}**\n"
+                f"**Bank**: \t**``{bank.add(credit, 'Slot Machine'):,}`` {COIN}**"
+            )
+            embed.clear_fields()
+
+            await MESSAGE.edit(embed=embed, view=None)
+
+        def make_view(timeout: int = 60) -> SlotMenu:
+            view = SlotMenu(ctx.author, timeout=timeout)
+            if BET == 1 or credit < 1:
+                view.bet_1_button.disabled = True
+            if BET == 5 or credit < 5:
+                view.bet_5_button.disabled = True
+            if BET == 25 or credit < 25:
+                view.bet_max_button.disabled = True
+            if credit < BET:
+                view.spin_button.disabled = True
+            if credit == 0:  # Game Over; Leave only the cash_out_button
+                view.remove_item(view.spin_button)
+                view.remove_item(view.bet_1_button)
+                view.remove_item(view.bet_5_button)
+                view.remove_item(view.bet_max_button)
+            return view
+
+        # Setup initial embed
+        BET = 1
+        view = make_view()
+        view.bet_1_button.disabled = True
+
+        embed_ = embeds.make_embed(
+            ctx=ctx,
+            title="Slot Machine",
+            description="\t".join([SEVEN, SEVEN, SEVEN]),
+            image_url="https://i.imgur.com/SjYv07F.png",
+        )
+
+        embed_.add_field(name="Credits", value=f"{credit:,} {COIN}", inline=True)
+        embed_.add_field(name="Bet", value=f"{BET:,} {COIN}", inline=True)
+
+        MESSAGE = await ctx.reply(embed=embed_, view=view)
 
         while True:
             try:
-                # This makes sure nobody except the command sender can interact with the "menu"
-                reaction, user = await self.bot.wait_for(
-                    "reaction_add", timeout=60, check=check
-                )
-                # waiting for a reaction to be added - times out after x seconds, 60 in this example
+                await view.wait()
 
-                await message.remove_reaction(reaction, user)
+                if view.value == "spin":
+                    if credit >= BET:
+                        credit -= BET
+                        credit = await display_win(credit, await spin())
 
-                if str(reaction.emoji) == LEVER:  # 📍
-                    if credit >= bet:
-                        credit -= bet
-                        credit = await spin(credit)
+                    view = make_view()
+                    await change_bet(view)
 
-                    else:
-                        pass
-                elif str(reaction.emoji) == ONE:  # 1️⃣
-                    bet = 1
-                    await change_bet()
-                elif str(reaction.emoji) == FIVE:  # 5️⃣
-                    bet = 5
-                    await change_bet()
-                elif str(reaction.emoji) == TEN:  # 🔟
-                    bet = 10
-                    await change_bet()
+                elif view.value == "bet_1":
+                    BET = 1
+                    view = make_view()
+                    await change_bet(view)
 
-                elif str(reaction.emoji) == CASH_OUT:  # 💸
+                elif view.value == "bet_5":
+                    BET = 5
+                    view = make_view()
+                    await change_bet(view)
+
+                elif view.value == "bet_max":
+                    BET = 25
+                    view = make_view()
+                    await change_bet(view)
+
+                elif view.value == "cash_out" or view.value is None:
                     await cash_out(credit)
                     break
-
-                elif str(reaction.emoji) == BOMB:  # 💣
-                    bal_left = float(Bank(ctx.author))
-                    Bank(ctx.author).subtract(bal_left)
-                    credit += bal_left
-                    bet = credit
-
-                    await change_bet()
-                    log.warning(
-                        f"{ctx.author.mention=} has discovered and used the slot machine ALL IN easter egg"
-                    )
 
                 if credit == 0:
-                    await cash_out(credit)
-                    break
+                    embed: discord.Embed = MESSAGE.embeds[0]
+                    embed.set_field_at(
+                        index=1, name="Out of Credits", value="Game Over", inline=True
+                    )
+                    await MESSAGE.edit(embed=embed)
 
-            except asyncio.TimeoutError:
-                await cash_out(credit)
-                break
             except Exception as exception:
                 await embeds.error_message(
                     ctx=ctx,
                     description=f"An error occurred, balance refunded\n {exception=}",
                 )
-                Bank(ctx.author).add(credit)
-
-            # ending the loop if user doesn't react after x seconds
+                bank.add(start_credit, "Slots Refund")
 
 
 def setup(bot: Bot) -> None:
