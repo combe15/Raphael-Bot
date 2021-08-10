@@ -193,7 +193,7 @@ class Stonks(Cog):
                 stonk += " - Not Tradeable"
             if ticker["t"] != 0:
                 message = (
-                    f"```py\n"
+                    f"```yaml\n"
                     f"Price: {round(ticker['c'] * 100, 6):,}\n"
                     f"High:  {round((ticker['h']  - ticker['c']) * 100, 2):+,}\n"
                     f"Low:   {round((ticker['l']  - ticker['c']) * 100, 2):+,}\n"
