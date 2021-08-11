@@ -181,7 +181,7 @@ class Stonks(Cog):
         embed = embeds.make_embed(
             ctx=ctx,
             title="STONKS:",
-            description="Trading for :coin:\n $0.01 = 1 :coin:",
+            description="Trading for :coin:",
             image_url="https://cdn.discordapp.com/attachments/653793817299910689/766603822579580938/pepedeal.png",
         )
         for stonk in stonk_dict:
@@ -194,11 +194,11 @@ class Stonks(Cog):
             if ticker["t"] != 0:
                 message = (
                     f"```yaml\n"
-                    f"Price: {round(ticker['c'] * 100, 6):,}\n"
-                    f"High:  {round((ticker['h']  - ticker['c']) * 100, 2):+,}\n"
-                    f"Low:   {round((ticker['l']  - ticker['c']) * 100, 2):+,}\n"
-                    f"Open:  {round((ticker['o']  - ticker['c']) * 100, 2):+,}\n"
-                    f"Close: {round((ticker['pc'] - ticker['c']) * 100, 2):+,}```"
+                    f"Price: {round(ticker['c'], 6):,}\n"
+                    f"High:  {round((ticker['h']  - ticker['c']), 6):+,}\n"
+                    f"Low:   {round((ticker['l']  - ticker['c']), 6):+,}\n"
+                    f"Open:  {round((ticker['o']  - ticker['c']), 6):+,}\n"
+                    f"Close: {round((ticker['pc'] - ticker['c']), 6):+,}```"
                     f"https://finance.yahoo.com/quote/{stonk}"
                 )
             else:
