@@ -30,8 +30,6 @@ BOT_PREFIX=
 BOT_TOKEN=
 BOT_ID=
 SENTRY_DSN=
-SUBBY_API_ADDRESS=
-SUBBY_API_KEY=
 FINNHUB_TOKEN=
 ```
 
@@ -91,10 +89,6 @@ db:
   host:       "localhost:5432"
   user:       "raphael"
   password:   "raphael-password"
-
-subby_api:
-  address:    "http://400.563.1.1:4545"
-  api_key:    "umturvymonitoryS10w1ymynahcomp1ete"
 
 finnhub:
     token:    "bu53f6n22v6sjdfq7sbe"
