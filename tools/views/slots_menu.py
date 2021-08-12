@@ -19,7 +19,7 @@ class SlotMenu(discord.ui.View):
 
     def __init__(
         self, authorized_user: Union[discord.User, discord.Member] = None, **kwargs
-    ):
+    ) -> discord.ui.View:
         super().__init__(**kwargs)
         self.authorized_user = authorized_user
         self.value: str = None
