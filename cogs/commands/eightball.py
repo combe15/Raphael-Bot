@@ -48,7 +48,7 @@ class EightBall(Cog):
             "Very doubtful.",
         ]
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Magic 8 Ball",
             image_url="https://cdn.discordapp.com/attachments/757466211218096258/799387685088526406/s8b.png",

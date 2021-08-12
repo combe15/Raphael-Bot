@@ -67,7 +67,7 @@ class Reminder(Cog):
                     sent=False,
                 )
             )
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Reminder Set",
             description="I will be messaging you here on "
@@ -103,7 +103,7 @@ class Reminder(Cog):
                 f"**ID: {message['id']}** | Alert on {alert_time}\n{message['message']}"
             )
 
-        embed = embeds.make_embed(ctx=ctx, title="Reminders")
+        embed = embeds.MakeEmbed(ctx=ctx, title="Reminders")
 
         # Paginate results
         await LinePaginator.paginate(
@@ -139,7 +139,7 @@ class Reminder(Cog):
             # All the checks should be done.
             data = dict(id=reminder_id, sent=True)
             table.update(data, ["id"])
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Reminder deleted",
             description=f"Reminder ID: {reminder_id} has been deleted.",

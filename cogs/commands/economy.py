@@ -24,7 +24,7 @@ class Economy(Cog):
 
         user = user or ctx.author
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             image_url="https://cdn.iconscout.com/icon/free/png-128/bank-1850789-1571030.png",
         )
@@ -74,7 +74,7 @@ class Economy(Cog):
         Bank(ctx.author).subtract(amount, f"Payment to {user.name}")
         Bank(user).add(amount, f"Payment from {user.name}")
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Payment",
             description=f"{ctx.author.mention} has paid {user.mention}\n*Amount*={amount:,} :coin:",
@@ -96,7 +96,7 @@ class Economy(Cog):
             amount = user
             user = ctx.author
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Setting Player's Balance",
             description=f"{user.mention}'s balance has been set to {amount:,.2f} :coin:"
@@ -118,7 +118,7 @@ class Economy(Cog):
         """Add money to a user's account."""
 
         bank = Bank(user).add(amount, reason)
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Giving Player Money",
             description=f"{user.mention}'s been given {amount:,}:coin:\n"

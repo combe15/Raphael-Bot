@@ -114,7 +114,7 @@ class Shop(Cog):
             f"Emote.buy: {ctx.author.name}'s money was taken out of their account'"
         )
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title=f"Emoji Purchased `:{emote.name}:`",
             description=f"{BUY_EMOJI:,} :coin: removed from your account\n",
@@ -171,7 +171,7 @@ class Shop(Cog):
             f"Emote.delete: {ctx.author.name}'s money was taken out of their account'"
         )
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Emoji deleted",
             description=f"{DELETE_EMOJI:,} :coin: removed from your account",
@@ -231,7 +231,7 @@ class Shop(Cog):
             f"Emote.rename: {ctx.author.name}'s money was taken out of their account'"
         )
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Emoji renamed",
             description=f"{RENAME_EMOJI:,} :coin: removed from your account",

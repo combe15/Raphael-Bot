@@ -42,7 +42,7 @@ class Chance(Cog):
             int(random.choice(range(1, number_of_sides + 1)))
             for _ in range(number_of_dice)
         ]
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             description=(", ".join(str(x) for x in dice)),
             title="Rolling Results",
@@ -59,7 +59,7 @@ class Chance(Cog):
 
         coin = [str(random.choice(["Heads", "Tails"]))]
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx, description=coin[0], title="Coin Flip Results"
         )
         await ctx.reply(embed=embed)
@@ -130,7 +130,7 @@ class Chance(Cog):
             return foo
 
         async def default_embed(message: discord.Message, bet: int) -> None:
-            embed = embeds.make_embed(
+            embed = embeds.MakeEmbed(
                 ctx=ctx, title="Cups", description="Where's the coin? :coin:"
             )
             embed.add_field(name=f"{CUP_EMOJI} {CUP_EMOJI} {CUP_EMOJI}", value="​")
@@ -153,13 +153,13 @@ class Chance(Cog):
             if check_win(choice, elements):
                 log.trace(f"{ctx.author=} wins in cups with {choice=} {elements=}")
                 bet *= 2
-                embed = embeds.make_embed(
+                embed = embeds.MakeEmbed(
                     ctx=ctx, title="Cups", description="**WINNER WINNER!**"
                 )
                 embed.add_field(name=" ".join(elements), value=f"You won {bet} coin!")
             else:
                 log.trace(f"{ctx.author=} looses it all with {choice=} {elements=}")
-                embed = embeds.make_embed(
+                embed = embeds.MakeEmbed(
                     ctx=ctx, title="Cups", description="Better luck next time."
                 )
                 embed.add_field(
@@ -182,9 +182,9 @@ class Chance(Cog):
             log.debug("clearing reactions")
 
             if bet != 0:
-                emb = embeds.make_embed(
+                emb = embeds.MakeEmbed(
                     ctx=ctx,
-                    color="green",
+                    color=embeds.MoreColors.green(),
                     title="Cups",
                     description=f"Awarded {bet} :coin:",
                 )
@@ -291,7 +291,7 @@ class Chance(Cog):
         Bank(ctx.author).subtract(bet)
 
         """Need to find another player to play against. Polling the server"""
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title=f"{ctx.author.display_name} wants to play Connect Four",
             description="Press play to accept the challenge",
@@ -874,7 +874,7 @@ class Chance(Cog):
         view = make_view()
         view.bet_1_button.disabled = True
 
-        embed_ = embeds.make_embed(
+        embed_ = embeds.MakeEmbed(
             ctx=ctx,
             title="Slot Machine",
             description="\t".join([SEVEN, SEVEN, SEVEN]),

@@ -178,7 +178,7 @@ class Stonks(Cog):
             for stonk in stonks[:5]:
                 stonk_dict[stonk.upper()] = self.stock_price(stonk.upper())
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="STONKS:",
             description="Trading for :coin:",
@@ -280,7 +280,7 @@ class Stonks(Cog):
                 db.rollback()
                 return
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title=f"Stock purchased: {stonk[0]}",
             description=f"Purchased **{number_of_stonks:,}** share(s) of {stonk[0]}\n"
@@ -351,7 +351,7 @@ class Stonks(Cog):
                 fee = math.ceil((sell_price) * BROKERAGE_FEE_PERCENTAGE)
 
                 rep = await ctx.reply(
-                    embed=embeds.make_embed(
+                    embed=embeds.MakeEmbed(
                         ctx=ctx,
                         title="Confirm sell",
                         description=f"Type **`Confirm`** to sell your **`{number_of_stonks}`** "
@@ -389,7 +389,7 @@ class Stonks(Cog):
                 db.rollback()
                 return
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title=f"Stock Sold: {stonk[0]}",
             description=f"Sold **{number_of_stonks:,}** share(s) of {stonk[0]}\n"
@@ -410,7 +410,7 @@ class Stonks(Cog):
 
         user = user or ctx.author
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Portfolio",
             image_url="https://compote.slate.com/images/926e5009-c10a-48fe-b90e-fa0760f82fcd.png"
@@ -476,7 +476,7 @@ class Stonks(Cog):
 
         user = user or ctx.author
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Stock History",
             image_url="https://compote.slate.com/images/926e5009-c10a-48fe-b90e-fa0760f82fcd.png"
@@ -525,7 +525,7 @@ class Stonks(Cog):
     async def stock_lookup(self, ctx: Context, query: str):
         """Search for best-matching symbols based on your query."""
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Stock History",
             image_url="https://compote.slate.com/images/926e5009-c10a-48fe-b90e-fa0760f82fcd.png"
@@ -557,7 +557,7 @@ class Stonks(Cog):
     async def market(self, ctx: Context):
         """List All stocks in market with their value."""
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Market",
             image_url="https://compote.slate.com/images/926e5009-c10a-48fe-b90e-fa0760f82fcd.png"
@@ -611,7 +611,7 @@ class Stonks(Cog):
     async def transaction(self, ctx: Context):
         """List latest transactions in stock market."""
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Transactions",
             image_url="https://compote.slate.com/images/926e5009-c10a-48fe-b90e-fa0760f82fcd.png"

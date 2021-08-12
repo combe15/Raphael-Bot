@@ -22,11 +22,11 @@ class PlayerInfo(commands.Cog):
 
         role_list = " ".join([str(f"•{elm.name}\n") for elm in member.roles[1:]])
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title=f"{member.display_name}'s User Info",
             image_url=member.avatar.url,
-            color="blurple",
+            color=embeds.MoreColors.blurple(),
             description="Returning info about selected user",
         )
         embed.add_field(name="ID", value=member.id, inline=False)
@@ -50,7 +50,7 @@ class PlayerInfo(commands.Cog):
     async def pfp(self, ctx, user: discord.User = None):
         """Returns the profile picture of the invoker or the mentioned user."""
         user = user or ctx.author
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx, description=f"[{user.name}]({user.avatar.url})"
         )
         embed.set_image(url=user.avatar.url)
@@ -69,7 +69,7 @@ class PlayerInfo(commands.Cog):
         perms = "\n".join(perm for perm, value in member.guild_permissions if value)
 
         # And to make it look nice, we wrap it in an Embed.
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             ctx=ctx,
             title="Permissions for:",
             description=ctx.guild.name,

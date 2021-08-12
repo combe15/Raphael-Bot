@@ -89,7 +89,7 @@ class CustomHelpCommand(HelpCommand):
             Embed: Embed object of the formatted command.
         """
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             title="Command Help",
             image_url="https://cdn.discordapp.com/emojis/512367613339369475.png",
             ctx=self.context,
@@ -196,7 +196,7 @@ class CustomHelpCommand(HelpCommand):
             # add any remaining command help that didn't get added in the last iteration above.
             pages.append(page)
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             title="Command: Help",
             image_url="https://cdn.discordapp.com/emojis/512367613339369475.png",
             ctx=self.context,
@@ -226,7 +226,7 @@ class CustomHelpCommand(HelpCommand):
         # Sort commands by name and if the user can't use it, then it doesn't show. Such as IsOwner().
         commands_ = await self.filter_commands(cog.get_commands(), sort=True)
 
-        embed = embeds.make_embed(
+        embed = embeds.MakeEmbed(
             title="Command Help",
             image_url="https://cdn.discordapp.com/emojis/512367613339369475.png",
             ctx=self.context,

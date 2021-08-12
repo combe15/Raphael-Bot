@@ -48,7 +48,7 @@ class ReminderTask(Cog):
                 # Find the User.
                 user = self.bot.get_user(reminder["author_id"])
 
-                embed = embeds.make_embed(
+                embed = embeds.MakeEmbed(
                     title="Here is your reminder", description=reminder["message"]
                 )
                 try:
