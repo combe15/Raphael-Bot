@@ -2,7 +2,9 @@
 
 ![Docker](https://github.com/SuperstalkerX/Raphael-Bot/workflows/Docker/badge.svg?branch=main)
 
-This bot was not intended to become open-sourced but was so under request. This bot was merely a tool for me to learn from, so there will be errors or dumb implementations. If you come here to help, it will be greatly appreciated, but if you are here to make fun of my silly mistakes, then leave.
+A simple discord chatbot that has some games and economy.
+
+This bot's games include a slot machine, connect 4, shell game, and stock market trading.
 
 This project currently uses Python 3.8
 
