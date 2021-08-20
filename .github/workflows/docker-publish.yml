@@ -46,8 +46,10 @@ jobs:
         dockerfile: Dockerfile
 
   build-and-publish-tag:
+    needs: test
+
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') # Running this job only for tags
+    if: ${{ github.event_name != 'push' && github.ref != 'refs/heads/main' }}
 
     steps:
     - uses: actions/checkout@v2
