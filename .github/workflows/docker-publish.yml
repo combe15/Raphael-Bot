@@ -42,4 +42,5 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         image-name: raphael-bot
+        dockerfile: Dockerfile
         extract-git-tag: true # Extract Docker image tag from git reference.
