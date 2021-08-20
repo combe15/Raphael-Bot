@@ -32,8 +32,8 @@ jobs:
     needs: test
 
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    if: github.ref == 'refs/heads/main' # Running this job only for main branch
+    # Running this job only for main branch's push event
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
     steps:
     - uses: actions/checkout@v2 # Checking out the repo
