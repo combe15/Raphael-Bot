@@ -19,6 +19,9 @@ ENV PYTHONUNBUFFERED=1
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
 
+# Install beta discord.py
+RUN python -m pip install -U git+https://github.com/Rapptz/discord.py
+
 WORKDIR /app
 COPY . /app
 
