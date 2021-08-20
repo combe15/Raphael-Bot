@@ -31,7 +31,7 @@ jobs:
 
   build-and-publish-tag:
     runs-on: ubuntu-latest
-    # Always make a package with each git tag
+    # Always make a package with each git
     if: ${{ always() }}
 
     steps:
@@ -43,4 +43,4 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         image-name: raphael-bot
         dockerfile: Dockerfile
-        extract-git-tag: true # Extract Docker image tag from git reference.
+        image-tag: ${{ github.job }} # Unique number for package
