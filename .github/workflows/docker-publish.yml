@@ -43,4 +43,4 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         image-name: raphael-bot
         dockerfile: Dockerfile
-        image-tag: ${{ github.job }} # Unique number for package
+        image-tag: ${{ github.run_id }} # Unique number for package
